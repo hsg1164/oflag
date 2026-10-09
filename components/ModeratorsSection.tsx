@@ -5,20 +5,21 @@ interface RosterEntry {
   kick: string;
   x: string;
   boss?: boolean;
+  kickLink?: boolean; // true = show Kick button, otherwise X only
 }
 
 // 11 moderators — Kick name + X handle (live data via FixTweet)
 const ROSTER: RosterEntry[] = [
   { kick: 'xAREEJ1', x: 'itsxAREEJ1', boss: true },
-  { kick: 'M0ATAZ', x: 'S7_Moataz' },
+  { kick: 'M0ATAZ', x: 'S7_Moataz', kickLink: true },
   { kick: 'iriliir_5', x: 'iriliir_5' },
   { kick: 'i_fares_0i', x: 'i_fares_0i' },
-  { kick: 'sa3bood911', x: 'sa3bood911' },
+  { kick: 'sa3bood911', x: 'sa3bood911', kickLink: true },
   { kick: 'vghalaa1', x: 'vghalaa1' },
-  { kick: '2Yaseer', x: 'ieY52' },
+  { kick: '2Yaseer', x: 'ieY52', kickLink: true },
   { kick: '_aishilad', x: '_aishilad' },
-  { kick: 'A7MEDO', x: '_A7MEDO_' },
-  { kick: 'Alghamdiz', x: 'S7le_A' },
+  { kick: 'A7MEDO', x: '_A7MEDO_', kickLink: true },
+  { kick: 'Alghamdiz', x: 'S7le_A', kickLink: true },
   { kick: '2nellyy', x: '2nellyy' },
 ];
 
@@ -254,7 +255,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
               <div className="flex flex-row items-center gap-3 sm:gap-4">
                 {/* الأفاتار بالتاج + هالة دوّارة — يمين */}
                 <div className="relative w-fit shrink-0">
-                  <CrownIcon className="absolute -top-4 sm:-top-5 left-1/2 -translate-x-1/2 w-6 h-6 sm:w-7 sm:h-7 drop-shadow-[0_0_12px_rgba(225,6,0,0.9)] animate-float-soft z-10" />
+                  <CrownIcon className="absolute -top-5 left-1/2 -translate-x-1/2 w-6 h-6 sm:w-7 sm:h-7 drop-shadow-[0_0_12px_rgba(225,6,0,0.9)] z-10" />
                   <span className="halo-conic -inset-2" aria-hidden="true" />
                   <span
                     className="relative rounded-full p-[2.5px] sm:p-[3px] w-16 h-16 sm:w-24 sm:h-24 shrink-0 block"
@@ -309,9 +310,9 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                 </div>
               </div>
 
-              {/* البايو بالوسط */}
+              {/* البايو تحت صف الهوية بمحاذاة البداية */}
               {bossP.bio ? (
-                <p className="text-[12px] sm:text-[13px] text-white/55 leading-relaxed mt-4 max-w-3xl mx-auto text-center line-clamp-2" dir="auto">
+                <p className="text-[12px] sm:text-[13px] text-white/55 leading-relaxed mt-3.5 max-w-3xl line-clamp-2" dir="auto">
                   {bossP.bio}
                 </p>
               ) : null}
@@ -430,15 +431,17 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                     <span className="text-[9px] font-bold text-white/40">{t.followers}</span>
                   </span>
                   <span className="ms-auto flex items-center gap-1.5">
-                    <a
-                      href={`https://kick.com/${m.kick}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      aria-label={`Kick — ${m.kick}`}
-                      className="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/15 text-white/75 hover:text-[#53FC18] hover:border-[#53FC18]/60 hover:shadow-[0_0_16px_-4px_rgba(83,252,24,0.5)] flex items-center justify-center active:scale-95 transition-all"
-                    >
-                      <KickIconSmall className="w-3.5 h-3.5" />
-                    </a>
+                    {m.kickLink && (
+                      <a
+                        href={`https://kick.com/${m.kick}`}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        aria-label={`Kick — ${m.kick}`}
+                        className="w-9 h-9 rounded-xl bg-white/[0.05] border border-white/15 text-white/75 hover:text-[#53FC18] hover:border-[#53FC18]/60 hover:shadow-[0_0_16px_-4px_rgba(83,252,24,0.5)] flex items-center justify-center active:scale-95 transition-all"
+                      >
+                        <KickIconSmall className="w-3.5 h-3.5" />
+                      </a>
+                    )}
                     <a
                       href={`https://x.com/${m.x}`}
                       target="_blank"
