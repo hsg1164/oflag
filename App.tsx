@@ -766,16 +766,15 @@ export default function App() {
     const [clips, setClips] = useState<any[]>([]);
     const [theater, setTheater] = useState<TheaterItem | null>(null);
 
-    /* In-site theater — VODs embed Kick, clips play natively (HLS) */
+    /* In-site theater — real Kick video file (main VOD source), clips play native HLS */
     const openVod = useCallback((v: any) => {
         if (!v) return;
         const uuid = v?.uuid || v?.video?.uuid || v?.id;
         const thumb = v?.thumbnail?.url || v?.thumbnail?.src || (typeof v?.thumbnail === 'string' ? v.thumbnail : '') || PC_BACKGROUND;
         const subOnly = v?.video?.status === 'subscriber_only' || v?.video?.is_private === true;
         setTheater({
-            kind: 'vod',
+            kind: 'vod', uuid,
             title: v?.session_title || v?.title || 'VOD',
-            embedUrl: `https://kick.com/${CHANNEL_SLUG}/videos/${uuid}`,
             kickUrl: `https://kick.com/${CHANNEL_SLUG}/videos/${uuid}`,
             poster: thumb, subOnly,
             meta: v?.created_at ? String(v.created_at).slice(0, 10) : '',

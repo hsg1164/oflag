@@ -2,7 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import type { Language } from '../types';
 
 export type TheaterItem =
-  | { kind: 'vod'; title: string; embedUrl: string; kickUrl: string; poster?: string; subOnly?: boolean; meta?: string }
+  | { kind: 'vod'; uuid: string; title: string; kickUrl: string; poster?: string; subOnly?: boolean; meta?: string }
   | { kind: 'clip'; title: string; hls: string; kickUrl: string; poster?: string; meta?: string };
 
 interface VodTheaterProps {
@@ -11,41 +11,69 @@ interface VodTheaterProps {
   onClose: () => void;
 }
 
-/* Native HLS playback for clips (hls.js, lazy-loaded so the main bundle stays lean) */
-const ClipPlayer: React.FC<{ src: string; poster?: string }> = ({ src, poster }) => {
+/* Native HLS playback (hls.js, lazy-loaded so the main bundle stays lean) */
+const NativePlayer: React.FC<{ src?: string; vodUuid?: string; poster?: string; onBlocked?: () => void }> = ({ src, vodUuid, poster, onBlocked }) => {
   const ref = useRef<HTMLVideoElement>(null);
-  const [err, setErr] = useState(false);
+  const [state, setState] = useState<'loading' | 'ready' | 'error'>(src ? 'ready' : 'loading');
   useEffect(() => {
     const el = ref.current;
-    if (!el || !src) return;
+    if (!el) return;
     let hls: any = null;
     let dead = false;
     (async () => {
       try {
+        // Resolve the real Kick video file (main VOD source) when only a uuid is given:
+        // dedicated resolver first, generic proxy as fallback
+        let url = src || '';
+        if (!url && vodUuid) {
+          try {
+            const r = await fetch('/api/vod?uuid=' + encodeURIComponent(vodUuid));
+            const j = await r.json();
+            if (j?.source) url = j.source;
+          } catch {}
+          if (!url) {
+            const r = await fetch('/api/kick?endpoint=' + encodeURIComponent(`https://kick.com/api/v1/video/${vodUuid}`));
+            if (!r.ok) throw new Error('blocked');
+            const j = await r.json();
+            url = j?.source || '';
+          }
+          if (!url) throw new Error('blocked');
+        }
+        if (dead || !url) return;
         if (el.canPlayType('application/vnd.apple.mpegurl')) {
-          el.src = src;
+          el.src = url;
         } else {
           const mod: any = await import('hls.js');
           const Hls = mod?.default || mod;
           if (dead) return;
           if (Hls?.isSupported?.()) {
             hls = new Hls({ maxBufferLength: 30 });
-            hls.loadSource(src);
+            hls.loadSource(url);
             hls.attachMedia(el);
           } else {
-            el.src = src;
+            el.src = url;
           }
         }
+        setState('ready');
         el.play().catch(() => {});
       } catch {
-        if (!dead) setErr(true);
+        if (!dead) { setState('error'); onBlocked?.(); }
       }
     })();
     return () => { dead = true; try { hls?.destroy?.(); } catch {} };
-  }, [src]);
-  if (err) return null;
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [src, vodUuid]);
+  if (state === 'error') return null;
   return (
-    <video ref={ref} className="w-full h-full bg-black" controls playsInline preload="metadata" poster={poster} />
+    <div className="relative w-full h-full bg-black">
+      {state === 'loading' && (
+        <div className="absolute inset-0 flex flex-col items-center justify-center gap-3 bg-black">
+          {poster && <img src={poster} alt="" className="absolute inset-0 w-full h-full object-cover opacity-25 blur-sm" />}
+          <svg className="relative w-10 h-10 animate-spin text-[#E10600]" fill="none" viewBox="0 0 24 24"><circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" /><path className="opacity-90" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" /></svg>
+        </div>
+      )}
+      <video ref={ref} className="relative w-full h-full" controls playsInline preload="metadata" poster={poster} />
+    </div>
   );
 };
 
@@ -62,6 +90,15 @@ export const VodTheater: React.FC<VodTheaterProps> = ({ lang, item, onClose }) =
 
   if (!item) return null;
   const subOnly = item.kind === 'vod' && item.subOnly;
+
+  return (
+    <VodBody key={item.kind === 'vod' ? item.uuid : item.hls} lang={lang} item={item} subOnly={!!subOnly} onClose={onClose} />
+  );
+};
+
+const VodBody: React.FC<{ lang: Language; item: TheaterItem; subOnly: boolean; onClose: () => void }> = ({ lang, item, subOnly, onClose }) => {
+  const isAr = lang === 'ar';
+  const [blocked, setBlocked] = useState(false);
 
   return (
     <div className="fixed inset-0 z-[100] flex items-center justify-center p-3 sm:p-6 animate-fade-in"
@@ -94,11 +131,22 @@ export const VodTheater: React.FC<VodTheaterProps> = ({ lang, item, onClose }) =
             </div>
             {/* player */}
             <div className="aspect-video bg-black">
-              {item.kind === 'clip' ? (
-                <ClipPlayer src={item.hls} poster={item.poster} />
+              {blocked ? (
+                <div className="w-full h-full flex flex-col items-center justify-center gap-3 text-center p-6">
+                  <span className="w-14 h-14 rounded-2xl bg-[#E10600]/10 border border-[#E10600]/40 flex items-center justify-center">
+                    <svg className="w-7 h-7 text-[#FF8A8A]" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                  </span>
+                  <p className="text-white font-black text-sm md:text-base">{isAr ? 'هذا التسجيل للمشتركين فقط' : 'Subscribers only'}</p>
+                  <p className="text-white/45 text-[12px] font-medium">{isAr ? 'اشترك في قناة كيك عشان تشوفه كامل' : 'Subscribe on Kick to watch the full VOD'}</p>
+                  <a href={item.kickUrl} target="_blank" rel="noopener noreferrer"
+                    className="mt-1 inline-flex items-center gap-2 px-5 py-2.5 rounded-xl bg-[#E10600] text-white text-[13px] font-black hover:brightness-110 transition-all">
+                    {isAr ? 'اشترك وشاهد في كيك' : 'Sub & watch on Kick'}
+                  </a>
+                </div>
+              ) : item.kind === 'clip' ? (
+                <NativePlayer src={item.hls} poster={item.poster} onBlocked={() => setBlocked(true)} />
               ) : (
-                <iframe key={item.embedUrl} src={item.embedUrl} className="w-full h-full border-0"
-                  allow="autoplay; fullscreen; picture-in-picture" allowFullScreen title={item.title} />
+                <NativePlayer vodUuid={item.uuid} poster={item.poster} onBlocked={() => setBlocked(true)} />
               )}
             </div>
             {/* footer */}
