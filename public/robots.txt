@@ -1,4 +1,4 @@
-User-agent: *
+﻿User-agent: *
 Allow: /
 
-Sitemap: https://ixtroet.vercel.app/sitemap.xml
+Sitemap: https://oflag.vercel.app/sitemap.xml

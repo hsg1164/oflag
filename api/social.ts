@@ -1,4 +1,4 @@
-// Vercel Edge Function — Live Social Counters API
+﻿// Vercel Edge Function — Live Social Counters API
 // GET /api/social?platform=tiktok|instagram|youtube|twitter
 // Server-side fetch = no CORS issues, fresh numbers every call.
 // Vercel caches success responses for 4 minutes (s-maxage).
@@ -11,11 +11,11 @@ const UA =
   'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
 
 const HANDLES = {
-  tiktok: 'ixtroet',
-  instagram: 'xtroet',
-  twitter: 'xtroet',
-  snapchat: 'xtroet',
-  youtube: 'UCzTrJVRcJjcpUMKojPsgbDw', // @XTROET — verified channel id
+  tiktok: 'oflagx',
+  instagram: 'oflagx',
+  twitter: 'oFLaGx',
+  snapchat: 'oflagx',
+  youtube: 'oflagx', // @oflagx — resolved to channel id live
 } as const;
 
 type Platform = keyof typeof HANDLES;

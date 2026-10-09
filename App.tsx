@@ -1,25 +1,24 @@
-import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
-import { KickIcon, XIcon, SnapchatIcon, DiscordIcon, TikTokIcon, InstagramIcon, YoutubeIcon } from './components/Icons';
+﻿import React, { useState, useEffect, useRef, useCallback, Suspense, lazy } from 'react';
+import { KickIcon, XIcon, SnapchatIcon, TikTokIcon, WhatsAppIcon, YoutubeIcon } from './components/Icons';
 import { SocialLink, Language } from './types';
 import { StreamPlayer } from './components/StreamPlayer';
 import { SiteHeader } from './components/SiteHeader';
 import { ChatWidget } from './components/Chat';
-import { DiscordWidget, YoutubeWidget } from './components/CommunityWidgets';
+import { XWidget, YoutubeWidget } from './components/CommunityWidgets';
 
 // Heavy below-fold / on-demand chunks — split out of the first paint
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
 const ArchiveSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.ArchiveSection })));
-const AlbumSection = lazy(() => import('./components/AlbumSection').then(m => ({ default: m.AlbumSection })));
 const StoryPage = lazy(() => import('./components/StoryPage').then(m => ({ default: m.StoryPage })));
 
-// --- Constants (XTROET) ---
-const DEFAULT_PROFILE_IMAGE = "/xtroet-logo.webp";
+// --- Constants (OFLAG) ---
+const DEFAULT_PROFILE_IMAGE = "/oflag-logo.webp";
 import { kickFetch } from './utils/kickApi';
 import { getAllSocialMediaStats, formatFollowerCount, readSocialCache, SOCIAL_TTL_MS } from './utils/socialMediaApi';
 
-const PC_BACKGROUND = "/xtroet-banner.jpg";
-const MOBILE_BACKGROUND = "/xtroet-banner.jpg";
-const CHANNEL_SLUG = 'xtroet';
+const PC_BACKGROUND = "/bg-oflag.png";
+const MOBILE_BACKGROUND = "/bg-oflag.png";
+const CHANNEL_SLUG = 'oflag';
 
 const createSocialLink = (key: string, value: string, followerCount?: string, specialDetail?: string): SocialLink | null => {
     if (!value) return null;
@@ -29,59 +28,58 @@ const createSocialLink = (key: string, value: string, followerCount?: string, sp
         .replace(/\/$/, '');
     switch (key) {
         case 'twitter': return { name: 'X', url: value.startsWith('http') ? value : `https://x.com/${handle}`, icon: <XIcon className="w-7 h-7" />, color: '', username: `@${handle}`, hex: '#FFFFFF', followerCount, specialDetail };
-        case 'instagram': return { name: 'Instagram', url: value.startsWith('http') ? value : `https://instagram.com/${handle}`, icon: <InstagramIcon className="w-7 h-7" />, color: '', username: `@${handle}`, hex: '#E1306C', followerCount, specialDetail };
-        case 'youtube': return { name: 'YouTube', url: value.startsWith('http') ? value : `https://youtube.com/@${handle}`, icon: <YoutubeIcon className="w-7 h-7" />, color: '', username: '@XTROET', hex: '#FF0000', followerCount, specialDetail };
-        case 'discord': return { name: 'Discord', url: value.startsWith('http') ? value : `https://discord.gg/${handle}`, icon: <DiscordIcon className="w-7 h-7" />, color: '', username: 'Emerald Community', hex: '#5865F2', followerCount, specialDetail };
+        case 'youtube': return { name: 'YouTube', url: value.startsWith('http') ? value : `https://youtube.com/@${handle}`, icon: <YoutubeIcon className="w-7 h-7" />, color: '', username: `@${handle}`, hex: '#FF0000', followerCount, specialDetail };
         case 'snapchat': return { name: 'Snapchat', url: value.startsWith('http') ? value : `https://snapchat.com/add/${handle}`, icon: <SnapchatIcon className="w-7 h-7" />, color: '', username: `@${handle}`, hex: '#FFFC00', followerCount, specialDetail };
         case 'tiktok': return { name: 'TikTok', url: value.startsWith('http') ? value : `https://tiktok.com/@${handle}`, icon: <TikTokIcon className="w-7 h-7" />, color: '', username: `@${handle}`, hex: '#FE2C55', followerCount, specialDetail };
+        case 'whatsapp': return { name: 'WhatsApp', url: value, icon: <WhatsAppIcon className="w-7 h-7" />, color: '', username: 'قناة اوفلاق', hex: '#25D366', followerCount, specialDetail };
         default: return null;
     }
 };
 
 const KICK_SOCIAL: SocialLink = {
     name: 'KICK',
-    url: 'https://kick.com/xtroet',
+    url: 'https://kick.com/oflag',
     icon: <KickIcon className="w-8 h-8" />,
     color: '',
-    username: 'xtroet',
+    username: 'oflag',
     hex: '#53FC18',
     followerCount: '—',
     specialDetail: 'المسرح الرئيسي والبث المباشر'
 };
 
-// XTROET roster — 6 platforms, built synchronously so all cards render on first
+// OFLAG roster — 6 platforms, built synchronously so all cards render on first
 // paint even before live follower counts arrive (no empty grid gaps).
 const buildDefaultSocials = (stats: Record<string, string>): SocialLink[] => ([
     { ...KICK_SOCIAL, followerCount: stats['KICK'] || KICK_SOCIAL.followerCount },
-    createSocialLink('tiktok', 'https://www.tiktok.com/@ixtroet', stats['TikTok'], 'أقوى المقاطع والترند'),
-    createSocialLink('twitter', 'https://x.com/xtroet', stats['X'], 'الأخبار والتحديثات أول بأول'),
-    createSocialLink('snapchat', 'https://www.snapchat.com/@xtroet', stats['Snapchat'], 'سنابات ويوميات حصرية'),
-    createSocialLink('instagram', 'https://www.instagram.com/xtroet/', stats['Instagram'], 'الكواليس والستوري والصور'),
+    createSocialLink('twitter', 'https://x.com/oFLaGx', stats['X'], 'الأخبار والتحديثات أول بأول'),
+    createSocialLink('tiktok', 'https://www.tiktok.com/@oflagx', stats['TikTok'], 'أقوى المقاطع والترند'),
+    createSocialLink('youtube', 'https://www.youtube.com/@oflagx', stats['YouTube'], 'الفيديوهات والبثوث الكاملة'),
+    createSocialLink('snapchat', 'https://www.snapchat.com/@oflagx', stats['Snapchat'], 'سنابات ويوميات حصرية'),
+    createSocialLink('whatsapp', 'https://www.whatsapp.com/channel/0029VaqJZxB4inoqZq6Ra01s', stats['WhatsApp'], 'قناة الواتساب — كل جديد أول بأول'),
 ].filter(Boolean) as SocialLink[]);
 
 const TRANSLATIONS = {
     en: {
         status: 'LIVE NOW', statusOffline: 'OFFLINE',
-        headerTitle: 'XTROET STREAM HUB',
-        eyebrow: 'Beyond Ordinary — XTROET',
-        nameAr: 'Nasser Alanazi',
-        bio: 'Nasser Alanazi (XTROET) — member of the Level One clan, streamer and YouTuber, owner of the Adolf Albert character in the MT realistic-life server, one of the strongest and most prominent characters in the city.',
-        tags: ['Just Chatting', 'MT RP', 'Level One'],
+        headerTitle: 'OFLAG STREAM HUB',
+        eyebrow: 'Beyond Ordinary — OFLAG',
+        nameAr: 'oFLaG',
+        bio: 'oFLaG (OFLAG) — Streamer and Content Creator for Level One, The Goat of Kick. Live SWAT action, legendary challenges and the Crimson Fortress community nights.',
+        tags: ['Just Chatting', 'SWAT RP', 'Level One'],
         defaultStreamTitle: 'CHECK OUT THE VODS | FOLLOW NOW',
         defaultCategory: 'Offline',
-        footer: '© 2026 XTROET — Nasser Alanazi. All Rights Reserved.',
-        poweredBy: 'POWERED BY XTROET ERA',
-        watchLive: 'Watch Live', joinDiscord: 'Join Discord',
+        footer: '© 2026 OFLAG — oFLaG. All Rights Reserved.',
+        poweredBy: 'POWERED BY OFLAG ERA',
+        watchLive: 'Watch Live', followX: 'Follow on X',
         subOnly: 'SUB ONLY', dropsEnabled: 'DROPS ENABLED', noTags: 'No tags',
-        shareTitle: 'XTROET Stream Hub', shareText: 'Check out XTROET live on Kick!',         copied: 'Link copied!',
+        shareTitle: 'OFLAG Stream Hub', shareText: 'Check out OFLAG live on Kick!',         copied: 'Link copied!',
         lastSessionReport: 'Last session report', ago: 'Ago', duration: 'Duration',
         categoriesSpent: 'Categories in this stream', highlights: 'Stream highlights',
         socialsTitle: 'Social Arena', socialsSub: 'One hub — every platform. Pick your battlefield.',
-        communityTitle: 'Community HQ', supportTitle: 'Support the Channel', supportSub: 'Your support keeps the emerald empire legendary.',
+        communityTitle: 'Community HQ', supportTitle: 'Support the Channel', supportSub: 'Your support keeps the blood fortress legendary.',
         honorTitle: 'Hall of Fame', honorSub: 'Top supporters across every stream.',
         archiveTitle: 'Archive', archiveSub: 'Clips and past streams.',
-        albumTitle: "Nasser's Sirah", albumSub: 'Nasser’s sirah in frames — seventeen shots from the night shifts.',
-        statsTitle: 'Stream Stats', statsSub: 'Live numbers from the emerald empire.',
+        statsTitle: 'Stream Stats', statsSub: 'Live numbers from the blood fortress.',
         tiersTitle: 'Special alert tiers',
         theaterTitle: 'Live Theater', viewers: 'watching',
         statsKick: 'Kick followers', statsPlatforms: 'Platforms', statsStatus: 'Status',
@@ -89,26 +87,25 @@ const TRANSLATIONS = {
     },
     ar: {
         status: 'بث مباشر الآن', statusOffline: 'غير متصل حالياً',
-        headerTitle: 'مركز XTROET للبث المباشر',
-        eyebrow: 'خارج المألوف — XTROET',
-        nameAr: 'ناصر العنزي',
-        bio: 'ناصر العنزي (XTROET) — عضو في كلان لفل ون، استريمر ويوتيوبر، وصاحب شخصية ادولف البيرت في سيرفر MT للحياة الواقعية، إحدى أقوى وأبرز الشخصيات في المدينة.',
-        tags: ['Just Chatting', 'MT RP', 'Level One'],
+        headerTitle: 'مركز OFLAG للبث المباشر',
+        eyebrow: 'خارج المألوف — OFLAG',
+        nameAr: 'اوفلاق',
+        bio: 'اوفلاق (OFLAG) — ستريمر وصانع محتوى في لفل ون، معزة الكيك. بثوث سوات مباشرة، تحديات أسطورية وسهرات قلعة القرمز.',
+        tags: ['Just Chatting', 'SWAT RP', 'Level One'],
         defaultStreamTitle: 'تابع البثوث السابقة | تابعني الآن',
         defaultCategory: 'غير متصل',
-        footer: '© 2026 XTROET — ناصر العنزي. جميع الحقوق محفوظة.',
-        poweredBy: 'بدعم من XTROET ERA',
-        watchLive: 'شاهد البث', joinDiscord: 'انضم للديسكورد',
+        footer: '© 2026 OFLAG — اوفلاق. جميع الحقوق محفوظة.',
+        poweredBy: 'بدعم من OFLAG ERA',
+        watchLive: 'شاهد البث', followX: 'تابع على X',
         subOnly: 'للمشتركين فقط', dropsEnabled: 'الجوائز مفعلة', noTags: 'لا يوجد وسوم',
-        shareTitle: 'مركز بث XTROET', shareText: 'تابع بث ناصر العنزي المباشر على كيك!',         copied: 'تم نسخ الرابط!',
+        shareTitle: 'مركز بث OFLAG', shareText: 'تابع بث اوفلاق المباشر على كيك!',         copied: 'تم نسخ الرابط!',
         lastSessionReport: 'تقرير الجلسة الأخيرة', ago: 'منذ', duration: 'المدة',
         categoriesSpent: 'الفئات التي تم بثها', highlights: 'لقطات ممتعة من البث',
         socialsTitle: 'ساحة التواصل', socialsSub: 'كل المنصات في مكان واحد — اختر ساحتك.',
-        communityTitle: 'مقر المجتمع', supportTitle: 'دعم القناة', supportSub: 'دعمك يخلي إمبراطورية الزمرد أسطورية وتستمر.',
+        communityTitle: 'مقر المجتمع', supportTitle: 'دعم القناة', supportSub: 'دعمك يخلي قلعة القرمز أسطورية وتستمر.',
         honorTitle: 'لوحة الشرف', honorSub: 'كبار الداعمين عبر كل البثوث.',
         archiveTitle: 'الأرشيف', archiveSub: 'اللقطات والبثوث السابقة.',
-        albumTitle: 'سيرة ناصر', albumSub: 'سيرة ناصر بالصور — سبع عشرة صورة من ذاكرة السهرات.',
-        statsTitle: 'إحصائيات البث', statsSub: 'أرقام إمبراطورية الزمرد لحظة بلحظة.',
+        statsTitle: 'إحصائيات البث', statsSub: 'أرقام قلعة القرمز لحظة بلحظة.',
         tiersTitle: 'مستويات التنبيه الخاصة',
         theaterTitle: 'مسرح البث المباشر', viewers: 'مشاهد',
         statsKick: 'متابع كيك', statsPlatforms: 'منصة', statsStatus: 'الحالة',
@@ -143,8 +140,8 @@ const ArenaBackground: React.FC = () => {
         if (!ctx) return;
         let raf = 0; let w = 0; let h = 0;
         const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
-        // Emerald empire: rising emerald sparks + bronze embers with flicker
-        type P = { x: number; y: number; r: number; vy: number; vx: number; sway: number; phase: number; a: number; ember: boolean; green: boolean };
+        // Crimson fortress: rising blood sparks + ember fire with flicker
+        type P = { x: number; y: number; r: number; vy: number; vx: number; sway: number; phase: number; a: number; ember: boolean; blood: boolean };
         let parts: P[] = [];
         const resize = () => {
             w = window.innerWidth; h = window.innerHeight;
@@ -157,7 +154,7 @@ const ArenaBackground: React.FC = () => {
                 r: 0.7 + Math.random() * 2.4,
                 vy: -(0.25 + Math.random() * 0.7), vx: (Math.random() - 0.5) * 0.2,
                 sway: 0.3 + Math.random() * 0.9, phase: Math.random() * Math.PI * 2,
-                a: 0.2 + Math.random() * 0.55, ember: Math.random() > 0.4, green: Math.random() > 0.45,
+                a: 0.2 + Math.random() * 0.55, ember: Math.random() > 0.4, blood: Math.random() > 0.45,
             }));
         };
         resize();
@@ -175,14 +172,14 @@ const ArenaBackground: React.FC = () => {
                 const alpha = Math.max(0, Math.min(1, p.a * flick));
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                if (p.green) {
-                    ctx.fillStyle = `rgba(16,185,129,${alpha})`;
+                if (p.blood) {
+                    ctx.fillStyle = `rgba(225,6,0,${alpha})`;
                     ctx.shadowBlur = 14;
-                    ctx.shadowColor = 'rgba(16,185,129,0.9)';
+                    ctx.shadowColor = 'rgba(225,6,0,0.9)';
                 } else if (p.ember) {
-                    ctx.fillStyle = `rgba(217,180,100,${alpha})`;
+                    ctx.fillStyle = `rgba(255,107,0,${alpha})`;
                     ctx.shadowBlur = 14;
-                    ctx.shadowColor = 'rgba(201,162,75,0.9)';
+                    ctx.shadowColor = 'rgba(255,60,30,0.9)';
                 } else {
                     ctx.fillStyle = `rgba(235,225,205,${alpha * 0.5})`;
                     ctx.shadowBlur = 0;
@@ -196,20 +193,20 @@ const ArenaBackground: React.FC = () => {
         return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
     }, []);
     return (
-        <div className="fixed inset-0 z-0 bg-[#04120D] overflow-hidden" aria-hidden="true">
-            {/* the emerald empire artwork — hero of the whole design */}
+        <div className="fixed inset-0 z-0 bg-[#060606] overflow-hidden" aria-hidden="true">
+            {/* the blood fortress artwork — hero of the whole design */}
             <div className="absolute inset-0 fortress_bg" />
             <div className="absolute inset-0 fortress_overlay" />
-            {/* god-ray beams through the emerald haze */}
+            {/* god-ray beams through the blood haze */}
             <div className="beam left-[8%] hidden md:block" />
             <div className="beam left-[16%] opacity-60 hidden md:block" style={{ animationDelay: '-4s', width: 70 }} />
-            {/* emerald glow left + bronze aura right */}
-            <div className="absolute -top-32 -left-32 w-[46vw] h-[46vw] max-w-[560px] max-h-[560px] rounded-full bg-[#10B981]/[0.14] blur-[130px] animate-aurora" />
-            <div className="absolute top-[8%] right-[-8%] w-[34vw] h-[34vw] max-w-[440px] max-h-[440px] rounded-full bg-[#C9A24B]/[0.16] blur-[120px] animate-aurora" style={{ animationDelay: '-8s' }} />
+            {/* blood glow left + ember aura right */}
+            <div className="absolute -top-32 -left-32 w-[46vw] h-[46vw] max-w-[560px] max-h-[560px] rounded-full bg-[#E10600]/[0.14] blur-[130px] animate-aurora" />
+            <div className="absolute top-[8%] right-[-8%] w-[34vw] h-[34vw] max-w-[440px] max-h-[440px] rounded-full bg-[#FF2233]/[0.16] blur-[120px] animate-aurora" style={{ animationDelay: '-8s' }} />
             <canvas ref={canvasRef} className="absolute inset-0 opacity-90" />
-            {/* readability vignette: dark void in the middle, deep emerald ink at content depth */}
-            <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_44%_at_50%_30%,transparent_30%,rgba(4,18,13,0.5)_100%)]" />
-            <div className="absolute inset-x-0 bottom-0 h-[36%] bg-gradient-to-t from-[#04120D] via-[#04120D]/70 to-transparent" />
+            {/* readability vignette: dark void in the middle, deep blood ink at content depth */}
+            <div className="absolute inset-0 bg-[radial-gradient(ellipse_62%_44%_at_50%_30%,transparent_30%,rgba(6,6,6,0.5)_100%)]" />
+            <div className="absolute inset-x-0 bottom-0 h-[36%] bg-gradient-to-t from-[#060606] via-[#060606]/70 to-transparent" />
         </div>
     );
 };
@@ -217,21 +214,21 @@ const ArenaBackground: React.FC = () => {
 const SectionHeading: React.FC<{ no: string; title: string; sub?: string; en?: string; compact?: boolean }> = ({ no, title, sub, en, compact }) => (
     <div className={`flex items-end gap-3 md:gap-5 ${compact ? 'mb-5 md:mb-7' : 'mb-6 md:mb-9'}`}>
         <span className="relative font-gaming text-4xl sm:text-5xl md:text-7xl leading-none text-stroke-red select-none shrink-0"
-            style={{ filter: 'drop-shadow(0 0 22px rgba(201,162,75,.35))' }}
+            style={{ filter: 'drop-shadow(0 0 22px rgba(225,6,0,.35))' }}
             dir="ltr"
             aria-hidden="true">{no}</span>
         <div className="flex-1 min-w-0">
             <div className="flex items-baseline gap-3 flex-wrap">
                 <h2 className="text-[26px] sm:text-3xl md:text-[42px] font-black leading-tight tracking-tight text-white">{title}</h2>
                 {en && (
-                    <span className="hidden sm:inline-flex items-center text-[10px] font-black tracking-[0.32em] uppercase text-[#C9A24B]/70"
+                    <span className="hidden sm:inline-flex items-center text-[10px] font-black tracking-[0.32em] uppercase text-[#FF2233]/70"
                         style={{ transform: 'translateY(-2px)' }} dir="ltr">{en}</span>
                 )}
             </div>
             {sub && <p className="text-[13px] md:text-[15px] text-white/55 mt-2 font-medium leading-relaxed">{sub}</p>}
-            <div className="relative mt-3.5 md:mt-4 h-[2px] w-full rounded-full bg-gradient-to-l from-[#C9A24B]/55 via-[#10B981]/28 to-transparent">
+            <div className="relative mt-3.5 md:mt-4 h-[2px] w-full rounded-full bg-gradient-to-l from-[#FF2233]/55 via-[#E10600]/28 to-transparent">
                 <span className="absolute inset-y-0 start-0 w-14 rounded-full"
-                    style={{ background: 'linear-gradient(90deg,#F4D98A,#C9A24B)', boxShadow: '0 0 14px rgba(201,162,75,.7)' }} aria-hidden="true" />
+                    style={{ background: 'linear-gradient(90deg,#FFD0D0,#FF2233)', boxShadow: '0 0 14px rgba(225,6,0,.7)' }} aria-hidden="true" />
             </div>
         </div>
     </div>
@@ -239,16 +236,16 @@ const SectionHeading: React.FC<{ no: string; title: string; sub?: string; en?: s
 
 const Marquee: React.FC<{ lang: Language }> = ({ lang }) => {
     const items = lang === 'ar'
-        ? ['بثوث أسطورية', 'إمبراطورية XTROET', 'مجتمع الزمرد', 'تفاعل لا يتوقف', 'جوائز ودروبس', 'تحديات ناصر', 'سهرات الإمبراطورية']
-        : ['EPIC STREAMS', 'XTROET ERA', 'EMERALD COMMUNITY', 'NONSTOP HYPE', 'DROPS & REWARDS', 'NASSER VIBES', 'EMPIRE NIGHTS'];
+        ? ['بثوث أسطورية', 'قلعة OFLAG', 'مجتمع القرمز', 'تفاعل لا يتوقف', 'جوائز ودروبس', 'تحديات اوفلاق', 'سهرات القلعة']
+        : ['EPIC STREAMS', 'OFLAG ERA', 'CRIMSON COMMUNITY', 'NONSTOP HYPE', 'DROPS & REWARDS', 'OFLAG VIBES', 'FORTRESS NIGHTS'];
     const row = [...items, ...items];
     return (
-        <div className="relative -mx-3 sm:-mx-4 md:-mx-8 overflow-hidden border-y border-[#C9A24B]/20 bg-black/60 backdrop-blur-md marquee-mask" dir="ltr" aria-hidden="true">
+        <div className="relative -mx-3 sm:-mx-4 md:-mx-8 overflow-hidden border-y border-[#FF2233]/20 bg-black/60 backdrop-blur-md marquee-mask" dir="ltr" aria-hidden="true">
             <div className="flex w-max animate-marquee gap-0 py-2.5 md:py-3">
                 {row.map((t, i) => (
                     <span key={i} className="flex items-center gap-6 px-6 whitespace-nowrap text-[12px] md:text-sm font-black tracking-[0.25em] text-white/60">
-                        <span className={i % 2 ? 'text-white/60' : 'text-[#D9C08A]'}>{t}</span>
-                        <span className="w-1.5 h-1.5 rotate-45 bg-[#C9A24B]/70 inline-block" />
+                        <span className={i % 2 ? 'text-white/60' : 'text-[#FF8A8A]'}>{t}</span>
+                        <span className="w-1.5 h-1.5 rotate-45 bg-[#FF2233]/70 inline-block" />
                     </span>
                 ))}
             </div>
@@ -326,11 +323,11 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                 {/* cinematic ambient from thumbnail */}
                 <img src={thumbnail} alt="" aria-hidden="true" className="absolute inset-0 w-full h-full object-cover blur-3xl opacity-25 scale-110 pointer-events-none" />
                 <div className="absolute inset-0 bg-gradient-to-b from-black/60 via-black/40 to-black/80 pointer-events-none" />
-                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-l from-transparent via-[#10B981] to-transparent" />
+                <div className="absolute top-0 inset-x-0 h-1 bg-gradient-to-l from-transparent via-[#E10600] to-transparent" />
                 <div className="relative p-5 sm:p-8 md:p-10">
                     {/* header */}
                     <div className="flex flex-wrap items-center gap-3 mb-6 md:mb-8 animate-fade-in-up">
-                        <span className="w-2.5 h-2.5 rounded-full bg-[#10B981] shadow-[0_0_14px_#10B981] animate-pulse shrink-0" />
+                        <span className="w-2.5 h-2.5 rounded-full bg-[#E10600] shadow-[0_0_14px_#E10600] animate-pulse shrink-0" />
                         <span className="text-[11px] font-black tracking-[0.35em] text-white/45 uppercase">{t.lastSessionReport}</span>
                         <span className="ms-auto flex flex-wrap items-center gap-2">
                             <span className="inline-flex items-center gap-1.5 text-[10px] font-black px-3 py-1.5 rounded-full bg-white/[0.06] border border-white/10 text-white/70">
@@ -347,11 +344,11 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                     <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
                         <div className="[perspective:1200px] w-full lg:w-[380px] shrink-0 animate-fade-in-up" style={{ animationDelay: '80ms' }}>
                             <a href={vodUrl} target="_blank" rel="noopener noreferrer"
-                                className="group relative block aspect-video rounded-2xl overflow-hidden border border-[#10B981]/30 bg-black shadow-[0_24px_60px_-16px_rgba(16,185,129,0.4)] [transform:rotateY(-7deg)_rotateX(2deg)] hover:[transform:rotateY(0deg)_rotateX(0deg)] transition-transform duration-700">
+                                className="group relative block aspect-video rounded-2xl overflow-hidden border border-[#E10600]/30 bg-black shadow-[0_24px_60px_-16px_rgba(225,6,0,0.4)] [transform:rotateY(-7deg)_rotateX(2deg)] hover:[transform:rotateY(0deg)_rotateX(0deg)] transition-transform duration-700">
                                 <img src={thumbnail} alt="Last Session" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                                 <span className="absolute top-3 start-3 text-[10px] font-black px-2.5 py-1 rounded-full bg-black/70 border border-white/15 text-white/80 backdrop-blur">VOD</span>
-                                <span className="absolute inset-0 m-auto w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#10B981]/25 backdrop-blur-md border border-[#10B981]/70 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-[0_0_36px_rgba(16,185,129,0.55)]">
+                                <span className="absolute inset-0 m-auto w-14 h-14 md:w-16 md:h-16 rounded-full bg-[#E10600]/25 backdrop-blur-md border border-[#E10600]/70 flex items-center justify-center transition-transform duration-300 group-hover:scale-110 shadow-[0_0_36px_rgba(225,6,0,0.55)]">
                                     <svg className="w-6 h-6 text-white fill-current translate-x-[1px] rtl:-translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                 </span>
                                 <span className="absolute bottom-3 end-3 text-[10px] font-black px-2.5 py-1 rounded-lg bg-black/75 border border-white/15 text-white" dir="ltr">{formatDuration(data.duration)}</span>
@@ -360,7 +357,7 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                     {compact(views)}
                                 </span>
                             </a>
-                            <span className="mt-3 w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#6EE7B7] via-[#10B981] to-[#047857] text-[#04120D] font-black text-sm shadow-[0_12px_30px_-10px_rgba(16,185,129,0.6)] active:scale-[0.98] transition-transform">
+                            <span className="mt-3 w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#FF8A8A] via-[#E10600] to-[#4A0200] text-[#060606] font-black text-sm shadow-[0_12px_30px_-10px_rgba(225,6,0,0.6)] active:scale-[0.98] transition-transform">
                                 {L.watch}
                                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                             </span>
@@ -370,13 +367,13 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                             <div className="flex flex-wrap items-center gap-2 mb-3 animate-fade-in-up" style={{ animationDelay: '140ms' }}>
                                 <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-white/[0.07] border border-white/10 text-white/70" dir="ltr">{data.language || 'AR'}</span>
                                 <span className="text-[10px] font-black px-2.5 py-1 rounded-full bg-white/[0.07] border border-white/10 text-white/70">{data.is_mature ? '18+' : L.family}</span>
-                                {catTags.map((tag, i) => <span key={i} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#10B981]/10 border border-[#10B981]/30 text-[#6EE7B7]" dir="ltr">#{tag}</span>)}
+                                {catTags.map((tag, i) => <span key={i} className="text-[10px] font-bold px-2.5 py-1 rounded-full bg-[#E10600]/10 border border-[#E10600]/30 text-[#FF8A8A]" dir="ltr">#{tag}</span>)}
                             </div>
                             <h3 className="text-xl sm:text-2xl md:text-3xl font-black text-white leading-snug mb-5 animate-fade-in-up" style={{ animationDelay: '180ms' }}>{data.session_title || data.title}</h3>
                             <div className="grid grid-cols-2 xl:grid-cols-4 gap-2.5 sm:gap-3">
                                 {stats.map((s, i) => (
-                                    <div key={i} className={`card-sheen relative overflow-hidden rounded-2xl border px-4 py-4 text-center backdrop-blur-md animate-fade-in-up ${s.hot ? 'bg-[#10B981]/[0.07] border-[#10B981]/25' : 'bg-white/[0.04] border-white/10'}`} style={{ animationDelay: `${220 + i * 80}ms` }}>
-                                        <span className={`mx-auto w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${s.hot ? 'bg-[#10B981]/15 text-[#6EE7B7]' : 'bg-white/[0.07] text-white/60'}`}>{s.icon}</span>
+                                    <div key={i} className={`card-sheen relative overflow-hidden rounded-2xl border px-4 py-4 text-center backdrop-blur-md animate-fade-in-up ${s.hot ? 'bg-[#E10600]/[0.07] border-[#E10600]/25' : 'bg-white/[0.04] border-white/10'}`} style={{ animationDelay: `${220 + i * 80}ms` }}>
+                                        <span className={`mx-auto w-8 h-8 rounded-xl flex items-center justify-center mb-2 ${s.hot ? 'bg-[#E10600]/15 text-[#FF8A8A]' : 'bg-white/[0.07] text-white/60'}`}>{s.icon}</span>
                                         <p className="text-lg sm:text-xl md:text-2xl font-black text-white">{s.value}</p>
                                         <p className="text-[9px] sm:text-[10px] font-bold text-white/35 uppercase tracking-widest mt-1">{s.label}</p>
                                     </div>
@@ -395,17 +392,17 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                             return (
                                                 <a key={s.id || i} href={vodUrlOf(s)} target="_blank" rel="noopener noreferrer" title={s.session_title || s.title}
                                                     className="flex-1 h-full flex flex-col items-center justify-end gap-1.5 group/bar min-w-0">
-                                                    <span className={`text-[10px] sm:text-[11px] font-black ${cur ? 'text-[#6EE7B7]' : 'text-white/45'}`} dir="ltr">{compact(v)}</span>
+                                                    <span className={`text-[10px] sm:text-[11px] font-black ${cur ? 'text-[#FF8A8A]' : 'text-white/45'}`} dir="ltr">{compact(v)}</span>
                                                     <span className="tier-bar w-full max-w-[90px] rounded-t-lg border-x border-t relative overflow-hidden"
                                                         style={{
                                                             height: `${h}%`, animationDelay: `${i * 120}ms`,
-                                                            background: cur ? 'linear-gradient(to bottom, #10B981, #10B98155 60%, rgba(0,0,0,0.5))' : 'linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.06))',
-                                                            borderColor: cur ? '#10B98188' : 'rgba(255,255,255,0.15)',
-                                                            boxShadow: cur ? '0 0 22px -4px rgba(16,185,129,0.7)' : 'none',
+                                                            background: cur ? 'linear-gradient(to bottom, #E10600, #E1060055 60%, rgba(0,0,0,0.5))' : 'linear-gradient(to bottom, rgba(255,255,255,0.35), rgba(255,255,255,0.06))',
+                                                            borderColor: cur ? '#E1060088' : 'rgba(255,255,255,0.15)',
+                                                            boxShadow: cur ? '0 0 22px -4px rgba(225,6,0,0.7)' : 'none',
                                                         }}>
                                                         <span className="absolute top-0 inset-x-2 h-1 rounded-full bg-white/40 blur-[1px]" />
                                                     </span>
-                                                    <span className={`w-full max-w-[90px] h-1.5 rounded-b bg-black/70 border-x border-b ${cur ? 'border-[#10B981]/50' : 'border-white/10'}`} />
+                                                    <span className={`w-full max-w-[90px] h-1.5 rounded-b bg-black/70 border-x border-b ${cur ? 'border-[#E10600]/50' : 'border-white/10'}`} />
                                                 </a>
                                             );
                                         })}
@@ -422,7 +419,7 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                             const slug = cat.slug || cat.category?.slug || catName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
                                             const catImg = cat.banner?.url || cat.banner?.responsive || cat.category?.banner?.url || cat.category?.banner?.responsive || cat.responsive_url || cat.thumbnail?.url || cat.category?.responsive_url || cat.category?.thumbnail?.url || `https://files.kick.com/categories/${slug}/fullsize.png`;
                                             return (
-                                                <span key={i} className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/10 rounded-full ps-1 pe-3 py-1 hover:border-[#10B981]/40 transition-colors">
+                                                <span key={i} className="inline-flex items-center gap-2 bg-white/[0.05] border border-white/10 rounded-full ps-1 pe-3 py-1 hover:border-[#E10600]/40 transition-colors">
                                                     <span className="w-7 h-7 rounded-full overflow-hidden bg-black border border-white/10 block">
                                                         <img src={catImg} alt={catName} loading="lazy" className="w-full h-full object-cover"
                                                             onError={(e) => { const tg = e.target as HTMLImageElement; tg.src = tg.src.includes('picsum') ? DEFAULT_PROFILE_IMAGE : `https://picsum.photos/seed/${slug}/100/100`; }} />
@@ -446,13 +443,13 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                             <div className="grid grid-cols-3 gap-2 md:gap-4">
                                 {clips.slice(0, 3).map((clip: any, i: number) => (
                                     <a key={clip.id || i} href={`https://kick.com/${CHANNEL_SLUG}?clip=${clip.id}`} target="_blank" rel="noopener noreferrer"
-                                        className="group relative aspect-video rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black hover:border-[#10B981]/60 hover:-translate-y-1 transition-all duration-300">
+                                        className="group relative aspect-video rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black hover:border-[#E10600]/60 hover:-translate-y-1 transition-all duration-300">
                                         <img src={clip.thumbnail_url || clip.thumbnail?.url || PC_BACKGROUND} alt={clip.title} loading="lazy"
                                             className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                                         <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/10 to-transparent" />
                                         <span className="absolute top-1.5 start-1.5 w-5 h-5 md:w-6 md:h-6 rounded-lg bg-black/70 border border-white/15 text-white/80 text-[9px] md:text-[10px] font-black flex items-center justify-center backdrop-blur" dir="ltr">{i + 1}</span>
                                         <div className="absolute inset-0 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity">
-                                            <span className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-[#10B981]/25 backdrop-blur border border-[#10B981]/60 flex items-center justify-center shadow-[0_0_16px_rgba(16,185,129,0.6)]">
+                                            <span className="w-9 h-9 md:w-11 md:h-11 rounded-full bg-[#E10600]/25 backdrop-blur border border-[#E10600]/60 flex items-center justify-center shadow-[0_0_16px_rgba(225,6,0,0.6)]">
                                                 <svg className="w-4 h-4 md:w-5 md:h-5 text-white fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                             </span>
                                         </div>
@@ -471,17 +468,17 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
     );
 };
 
-// --- Platform identity gradients (emerald empire palette) ---
+// --- Platform identity gradients (blood fortress palette) ---
 const BRAND_GRADIENTS: Record<string, string> = {
     KICK: 'linear-gradient(135deg, rgba(83,252,24,0.28), rgba(83,252,24,0.05) 55%, transparent)',
-    Instagram: 'linear-gradient(135deg, rgba(225,48,108,0.28), rgba(129,52,175,0.14) 50%, rgba(255,170,60,0.08))',
+    WhatsApp: 'linear-gradient(135deg, rgba(37,211,102,0.28), rgba(37,211,102,0.08) 55%, transparent)',
     TikTok: 'linear-gradient(135deg, rgba(254,44,85,0.24), rgba(37,244,238,0.12) 60%, transparent)',
     X: 'linear-gradient(135deg, rgba(255,255,255,0.14), rgba(255,255,255,0.02) 60%, transparent)',
     Snapchat: 'linear-gradient(135deg, rgba(255,252,0,0.20), rgba(255,170,0,0.08) 55%, transparent)',
     YouTube: 'linear-gradient(135deg, rgba(255,0,0,0.26), rgba(255,0,0,0.05) 55%, transparent)',
 };
 
-// --- Social Card — premium emerald edition (XTROET identity) ---
+// --- Social Card — premium blood edition (OFLAG identity) ---
 const SocialCard: React.FC<{ social: SocialLink; index: number; featured?: boolean; lang: Language }> = ({ social, index, featured = false, lang }) => {
     const [hover, setHover] = useState(false);
     const [launching, setLaunching] = useState(false);
@@ -563,9 +560,9 @@ const SocialCard: React.FC<{ social: SocialLink; index: number; featured?: boole
             onTouchStart={() => setPressed(true)} onTouchEnd={() => setPressed(false)}
             style={{ animationDelay: `${Math.min(index * 60, 400)}ms` }}
             className={`group relative block animate-fade-in-up select-none rounded-[22px] ${launching ? 'z-40' : ''}`}
-            title={`${social.name} - XTROET Official`} aria-label={lang === 'ar' ? `تابع ناصر العنزي على ${social.name}` : `Visit XTROET on ${social.name}`}>
+            title={`${social.name} - OFLAG Official`} aria-label={lang === 'ar' ? `تابع اوفلاق على ${social.name}` : `Visit OFLAG on ${social.name}`}>
             {featured ? (
-                <div className="rounded-[24px] p-[1.5px] bg-gradient-to-l from-[#53FC18] via-[#53FC18]/25 to-[#C9A24B]/70 shadow-[0_0_35px_rgba(83,252,24,0.15)]">
+                <div className="rounded-[24px] p-[1.5px] bg-gradient-to-l from-[#53FC18] via-[#53FC18]/25 to-[#FF2233]/70 shadow-[0_0_35px_rgba(83,252,24,0.15)]">
                     <div className="rounded-[22.5px] bg-[#0b0b0b]">{card}</div>
                 </div>
             ) : (
@@ -581,13 +578,13 @@ const SocialCard: React.FC<{ social: SocialLink; index: number; featured?: boole
 // ============ SUPPORT — modern glass system (no leaderboard, removed per request) ============
 type Supporter = { id: number; name: string; amount: number; currency: string; message?: string; source: string; created_at: string };
 
-// Special alert tiers — emerald empire interactive cards with perks
+// Special alert tiers — blood fortress interactive cards with perks
 const TIERS = [
-    { amount: 50, label: '50$', c: '#FFE9B8', glow: 'rgba(255,233,184,0.45)', name: 'BRONZE', nameAr: 'برونزي', perk: 'تنبيه برونزي أنيق يظهر اسمك في الشات', perkEn: 'Sleek bronze on-screen alert', icon: '✦' },
-    { amount: 100, label: '100$', c: '#E8D5A8', glow: 'rgba(232,213,168,0.5)', name: 'SILVER', nameAr: 'فضي', perk: 'تنبيه فضي + شكر صوتي مباشر من ناصر', perkEn: 'Silver alert + live shoutout', icon: '⬣' },
-    { amount: 200, label: '200$', c: '#C9A24B', glow: 'rgba(201,162,75,0.6)', name: 'GOLD', nameAr: 'ذهبي', perk: 'تنبيه ذهبي سينمائي + صوت مخصص باسمك', perkEn: 'Cinematic gold alert + custom sound', icon: '◈', popular: true },
-    { amount: 500, label: '500$', c: '#10B981', glow: 'rgba(16,185,129,0.55)', name: 'EMERALD', nameAr: 'زمردي', perk: 'عرض اسمك بحجم الشاشة + مقطع شكر خاص', perkEn: 'Fullscreen takeover + clip', icon: '⬥' },
-    { amount: 1000, label: '1000$', c: '#34D399', glow: 'rgba(52,211,153,0.55)', name: 'LEGEND', nameAr: 'أسطوري', perk: 'دخول قاعة الخلود + فيديو تكريم خاص', perkEn: 'Hall of fame + tribute video', icon: '❖' },
+    { amount: 50, label: '50$', c: '#FFCFCF', glow: 'rgba(255,207,207,0.45)', name: 'BLOOD', nameAr: 'دموي', perk: 'تنبيه دموي أنيق يظهر اسمك في الشات', perkEn: 'Sleek blood on-screen alert', icon: '✦' },
+    { amount: 100, label: '100$', c: '#FF8A8A', glow: 'rgba(255,138,138,0.5)', name: 'EMBER', nameAr: 'جمري', perk: 'تنبيه جمري + شكر صوتي مباشر من اوفلاق', perkEn: 'Ember alert + live shoutout', icon: '⬣' },
+    { amount: 200, label: '200$', c: '#FF2233', glow: 'rgba(225,6,0,0.6)', name: 'CRIMSON', nameAr: 'قرمزي', perk: 'تنبيه قرمزي سينمائي + صوت مخصص باسمك', perkEn: 'Cinematic crimson alert + custom sound', icon: '◈', popular: true },
+    { amount: 500, label: '500$', c: '#E10600', glow: 'rgba(225,6,0,0.55)', name: 'FORTRESS', nameAr: 'القلعة', perk: 'عرض اسمك بحجم الشاشة + مقطع شكر خاص', perkEn: 'Fullscreen takeover + clip', icon: '⬥' },
+    { amount: 1000, label: '1000$', c: '#FF4D5A', glow: 'rgba(255,77,90,0.55)', name: 'LEGEND', nameAr: 'أسطوري', perk: 'دخول قاعة الخلود + فيديو تكريم خاص', perkEn: 'Hall of fame + tribute video', icon: '❖' },
 ];
 
 const AlertTiers: React.FC<{ title: string; note: string; lang: Language }> = ({ title, note, lang }) => {
@@ -596,14 +593,14 @@ const AlertTiers: React.FC<{ title: string; note: string; lang: Language }> = ({
     const isAr = lang === 'ar';
     return (
         <div id="store" className="relative mt-5 md:mt-7 rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-2xl overflow-hidden scroll-mt-32">
-            <div className="absolute -top-24 start-1/4 w-96 h-96 rounded-full bg-[#C9A24B]/[0.10] blur-[110px] pointer-events-none" aria-hidden="true" />
+            <div className="absolute -top-24 start-1/4 w-96 h-96 rounded-full bg-[#FF2233]/[0.10] blur-[110px] pointer-events-none" aria-hidden="true" />
             <div className="absolute -bottom-24 end-0 w-80 h-80 rounded-full bg-[#8B5CF6]/[0.10] blur-[100px] pointer-events-none" aria-hidden="true" />
-            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-l from-transparent via-[#C9A24B]/70 to-transparent" aria-hidden="true" />
+            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-l from-transparent via-[#FF2233]/70 to-transparent" aria-hidden="true" />
             <div className="relative p-5 sm:p-7 md:p-8">
                 <div className="flex items-center justify-center gap-2.5 mb-1">
-                    <span className="w-1.5 h-1.5 rotate-45 bg-[#C9A24B] inline-block" aria-hidden="true" />
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#FF2233] inline-block" aria-hidden="true" />
                     <p className="text-[11px] md:text-xs font-black text-white/60 tracking-[0.32em] uppercase">{title}</p>
-                    <span className="w-1.5 h-1.5 rotate-45 bg-[#C9A24B] inline-block" aria-hidden="true" />
+                    <span className="w-1.5 h-1.5 rotate-45 bg-[#FF2233] inline-block" aria-hidden="true" />
                 </div>
                 <p className="text-center text-[12px] text-white/40 font-medium mb-6">{isAr ? 'اضغط على أي مستوى لتشوف ميزته' : 'Tap any tier to preview its perk'}</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3" role="list">
@@ -616,7 +613,7 @@ const AlertTiers: React.FC<{ title: string; note: string; lang: Language }> = ({
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                                     style={{ background: `radial-gradient(220px circle at 50% 0%, ${tr.glow}, transparent 70%)` }} aria-hidden="true" />
                                 {tr.popular && (
-                                    <span className="absolute top-3 end-3 text-[8px] font-black tracking-[0.18em] px-2 py-1 rounded-full bg-[#C9A24B] text-black shadow-[0_0_18px_rgba(201,162,75,0.7)]">HOT</span>
+                                    <span className="absolute top-3 end-3 text-[8px] font-black tracking-[0.18em] px-2 py-1 rounded-full bg-[#FF2233] text-black shadow-[0_0_18px_rgba(225,6,0,0.7)]">HOT</span>
                                 )}
                                 <span className="relative w-10 h-10 rounded-2xl flex items-center justify-center text-lg font-black border border-white/15 bg-white/[0.06] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
                                     style={{ color: tr.c, boxShadow: on ? `0 0 24px ${tr.glow}` : 'none' }}>{tr.icon}</span>
@@ -717,13 +714,13 @@ const SupportArena: React.FC<{ lang: Language; supporters: Supporter[] }> = ({ l
         <div className="w-full">
             {/* gates — modern glass duo */}
             <div className="relative">
-                <div className="absolute -top-10 right-0 w-64 h-64 rounded-full bg-[#10B981]/15 blur-[90px] animate-aurora pointer-events-none" aria-hidden="true" />
-                <div className="absolute -bottom-10 left-0 w-72 h-72 rounded-full bg-[#C9A24B]/20 blur-[100px] animate-aurora pointer-events-none" style={{ animationDelay: '-7s' }} aria-hidden="true" />
+                <div className="absolute -top-10 right-0 w-64 h-64 rounded-full bg-[#E10600]/15 blur-[90px] animate-aurora pointer-events-none" aria-hidden="true" />
+                <div className="absolute -bottom-10 left-0 w-72 h-72 rounded-full bg-[#FF2233]/20 blur-[100px] animate-aurora pointer-events-none" style={{ animationDelay: '-7s' }} aria-hidden="true" />
                 <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5" dir="rtl">
-                    <DonateGate lang={lang} title="STREAMLABS" url="https://streamlabs.com/xtroet" color="#10B981" markImg="/xtroet-logo.webp"
+                    <DonateGate lang={lang} title="STREAMLABS" url="https://streamlabs.com/oflag1" color="#E10600" markImg="/oflag-logo.webp"
                         label={lang === 'en' ? 'STREAMLABS' : 'ستريم لابس'} secure={lang === 'en' ? 'SECURE • INSTANT ALERT' : 'آمن • تنبيه فوري'} cta={lang === 'en' ? 'Donate via Streamlabs' : 'ادعم عبر ستريم لابس'}
                         sub={lang === 'en' ? 'Global cards • instant on-screen alert' : 'بطاقات عالمية • تنبيه فوري على الشاشة'} />
-                    <DonateGate lang={lang} title="DOKAN" url="https://tip.dokan.sa/xtroet" color="#C9A24B" color2="#10B981" markImg="/xtroet-logo.webp"
+                    <DonateGate lang={lang} title="DOKAN" url="https://tip.dokan.sa/oflag1" color="#FF2233" color2="#E10600" markImg="/oflag-logo.webp"
                         label={lang === 'en' ? 'DOKAN • SEND TIP' : 'دكان • تيب'}
                         secure={lang === 'en' ? 'SECURE • MADA & APPLE PAY' : 'آمن • مدى وآبل باي'} cta={lang === 'en' ? 'Donate via Dokan' : 'ادعم عبر دكان'}
                         sub={lang === 'en' ? 'Mada • Apple Pay • instant vibe' : 'مدى • آبل باي • تنبيه يهز الشات'} />
@@ -742,12 +739,12 @@ export default function App() {
 
     const [socialStats, setSocialStats] = useState<Record<string, string>>({
         'KICK': '—', 'TikTok': '—',
-        'X': '—', 'Instagram': '—', 'Snapchat': '—', 'YouTube': '—'
+        'X': '—', 'YouTube': '—', 'Snapchat': '—', 'WhatsApp': '—'
     });
 
     const [socials, setSocials] = useState<SocialLink[]>(() => buildDefaultSocials({
         'KICK': '—', 'TikTok': '—',
-        'X': '—', 'Instagram': '—', 'Snapchat': '—', 'YouTube': '—'
+        'X': '—', 'YouTube': '—', 'Snapchat': '—', 'WhatsApp': '—'
     }));
     const [lastSession, setLastSession] = useState<any>(null);
     const [pastSessions, setPastSessions] = useState<any[]>([]);
@@ -755,10 +752,9 @@ export default function App() {
 
     // Live social counters — dedicated 5-minute loop + instant cache paint (API-style)
     useEffect(() => {
-        const apply = (stats: { instagram?: number; tiktok?: number; twitter?: number; youtube?: number; snapchat?: number }) => {
+        const apply = (stats: { tiktok?: number; twitter?: number; youtube?: number; snapchat?: number }) => {
             setSocialStats(prev => ({
                 ...prev,
-                'Instagram': formatFollowerCount(stats.instagram || 0),
                 'TikTok': formatFollowerCount(stats.tiktok || 0),
                 'X': formatFollowerCount(stats.twitter || 0),
                 'YouTube': formatFollowerCount(stats.youtube || 0),
@@ -825,7 +821,7 @@ export default function App() {
     }, [fetchKickStatus]);
 
     const handleShare = async () => {
-        const shareUrl = "https://kick.com/xtroet";
+        const shareUrl = "https://kick.com/oflag";
         if (navigator.share) { try { await navigator.share({ title: t.shareTitle, text: t.shareText, url: shareUrl }); } catch { /* dismissed */ } }
         else { try { await navigator.clipboard.writeText(shareUrl); } catch { /* clipboard blocked */ } alert(t.copied); }
     };
@@ -890,31 +886,31 @@ export default function App() {
                     </div>
                     <div className="relative z-10 w-full max-w-[1200px] mx-auto px-3 sm:px-4 md:px-8 pb-10 overflow-clip">
 
-                        {/* ===== HERO — ascension in the emerald void ===== */}
+                        {/* ===== HERO — ascension in the blood void ===== */}
                         <section id="top" className="relative pt-4 md:pt-20 pb-8 md:pb-12 overflow-clip">
                             <div className="relative mx-auto w-full max-w-3xl text-center">
                                 {/* emblem seal */}
                                 <div className="animate-fade-in relative mx-auto w-fit" onMouseEnter={() => setIsHoveringProfile(true)} onMouseLeave={() => setIsHoveringProfile(false)}>
                                     <span className="halo-conic -inset-3" aria-hidden="true" />
                                     <span className="profile-3d-ring-inner" aria-hidden="true" />
-                                    <span className="relative block w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-[#E8D5A8]/70 shadow-[0_0_60px_rgba(16,185,129,0.5)] bg-black">
-                                        <img src={branding.profileImage} alt="XTROET official emblem" className={`w-full h-full object-cover transition-transform duration-700 ${isHoveringProfile ? 'scale-110' : ''}`} loading="eager" />
+                                    <span className="relative block w-20 h-20 md:w-24 md:h-24 rounded-full overflow-hidden border-2 border-[#FFCFCF]/70 shadow-[0_0_60px_rgba(225,6,0,0.5)] bg-black">
+                                        <img src={branding.profileImage} alt="OFLAG official emblem" className={`w-full h-full object-cover transition-transform duration-700 ${isHoveringProfile ? 'scale-110' : ''}`} loading="eager" />
                                     </span>
-                                    <span className={`absolute -bottom-1 -end-1 flex items-center gap-1 rounded-full border px-2.5 py-1 text-[9px] font-black tracking-[0.18em] ${streamInfo.isLive ? 'border-[#53FC18]/60 bg-black/85 text-[#53FC18]' : 'border-[#10B981]/60 bg-black/85 text-[#6EE7B7]'}`}>
-                                        <span className={`w-1.5 h-1.5 rounded-full ${streamInfo.isLive ? 'bg-[#53FC18] animate-pulse' : 'bg-[#10B981] animate-pulse'}`} />
-                                        {streamInfo.isLive ? 'LIVE' : 'XTROET'}
+                                    <span className={`absolute -bottom-1 -end-1 flex items-center gap-1 rounded-full border px-2.5 py-1 text-[9px] font-black tracking-[0.18em] ${streamInfo.isLive ? 'border-[#53FC18]/60 bg-black/85 text-[#53FC18]' : 'border-[#E10600]/60 bg-black/85 text-[#FF8A8A]'}`}>
+                                        <span className={`w-1.5 h-1.5 rounded-full ${streamInfo.isLive ? 'bg-[#53FC18] animate-pulse' : 'bg-[#E10600] animate-pulse'}`} />
+                                        {streamInfo.isLive ? 'LIVE' : 'OFLAG'}
                                     </span>
                                 </div>
 
                                 <div className="animate-fade-in-up mt-6" style={{ animationDelay: '100ms' }}>
                                     <span className="eyebrow-chip">
-                                        <span className={`w-2 h-2 rounded-full shrink-0 ${streamInfo.isLive ? 'bg-[#53FC18] animate-pulse shadow-[0_0_10px_#53FC18]' : 'bg-[#10B981] animate-pulse shadow-[0_0_10px_#10B981]'}`} />
+                                        <span className={`w-2 h-2 rounded-full shrink-0 ${streamInfo.isLive ? 'bg-[#53FC18] animate-pulse shadow-[0_0_10px_#53FC18]' : 'bg-[#E10600] animate-pulse shadow-[0_0_10px_#E10600]'}`} />
                                         {t.eyebrow}
                                     </span>
                                 </div>
 
                                 {/* giant backdrop word */}
-                                <p className="font-gaming text-stroke-red pointer-events-none select-none absolute inset-x-0 top-[6%] md:top-2 text-[23vw] md:text-[190px] leading-none opacity-20 md:opacity-30" dir="ltr" aria-hidden="true">XTROET</p>
+                                <p className="font-gaming text-stroke-red pointer-events-none select-none absolute inset-x-0 top-[6%] md:top-2 text-[23vw] md:text-[190px] leading-none opacity-20 md:opacity-30" dir="ltr" aria-hidden="true">OFLAG</p>
 
                                 <h1 className="animate-fade-in-up relative font-heading font-black text-white leading-[1.05] tracking-tight text-[clamp(2.6rem,9vw,4.8rem)] mt-3" style={{ animationDelay: '180ms' }}>
                                     {lang === 'ar' ? (
@@ -923,49 +919,49 @@ export default function App() {
                                             <span className="gold-text mx-2 inline-flex align-middle" aria-hidden="true">
                                                 <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor" className="translate-y-[-1px]"><path d="M12 2l4.5 7.5L12 22 7.5 9.5z" /></svg>
                                             </span>
-                                            <span dir="ltr" className="hero-xtroet">XTROET</span>
+                                            <span dir="ltr" className="hero-oflag">OFLAG</span>
                                         </>
                                     ) : (
-                                        <span dir="ltr" className="hero-xtroet">XTROET</span>
+                                        <span dir="ltr" className="hero-oflag">OFLAG</span>
                                     )}
                                 </h1>
                                 <p className="animate-fade-in-up text-white/70 text-[15px] md:text-lg leading-relaxed max-w-2xl mt-6 md:mt-7 font-medium mx-auto" style={{ animationDelay: '300ms' }}>{t.bio}</p>
 
                                 <div className="animate-fade-in-up flex flex-wrap justify-center gap-2 sm:gap-2.5 mt-5" style={{ animationDelay: '360ms' }}>
                                     {t.tags.map((tag, i) => (
-                                        <span key={i} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#C9A24B]/35 bg-black/50 backdrop-blur text-[11px] sm:text-xs font-bold text-[#E8D5A8]">
-                                            <span className="w-1 h-1 rotate-45 bg-[#C9A24B]" aria-hidden="true" />#{tag}
+                                        <span key={i} className="inline-flex items-center gap-1.5 px-4 py-1.5 rounded-full border border-[#FF2233]/35 bg-black/50 backdrop-blur text-[11px] sm:text-xs font-bold text-[#FFCFCF]">
+                                            <span className="w-1 h-1 rotate-45 bg-[#FF2233]" aria-hidden="true" />#{tag}
                                         </span>
                                     ))}
                                 </div>
 
                                 <div className="animate-fade-in-up flex flex-col sm:flex-row justify-center gap-2.5 sm:gap-3 mt-7" style={{ animationDelay: '420ms' }}>
-                                    <a href="https://kick.com/xtroet" target="_blank" rel="noopener noreferrer"
+                                    <a href="https://kick.com/oflag" target="_blank" rel="noopener noreferrer"
                                         className="btn-arena btn-watch inline-flex items-center justify-center gap-3 px-8 py-3.5 rounded-2xl font-black text-[15px] md:text-base active:scale-[0.98]">
                                         <span className="play-badge shrink-0">
                                             <svg className="w-4 h-4 fill-current translate-x-[1px]" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                                         </span>
                                         <span className="watch-label">{t.watchLive}</span>
-                                        {streamInfo.isLive && streamInfo.viewers > 0 && <span className="rounded-lg bg-[#C9A24B]/15 border border-[#C9A24B]/30 px-2 py-0.5 text-xs font-black text-[#E8D5A8]" dir="ltr">{streamInfo.viewers.toLocaleString()}</span>}
+                                        {streamInfo.isLive && streamInfo.viewers > 0 && <span className="rounded-lg bg-[#FF2233]/15 border border-[#FF2233]/30 px-2 py-0.5 text-xs font-black text-[#FFCFCF]" dir="ltr">{streamInfo.viewers.toLocaleString()}</span>}
                                     </a>
-                                    <a href="https://discord.gg/bYPKxMp4h" target="_blank" rel="noopener noreferrer"
-                                        className="btn-arena btn-discord inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[15px] md:text-base active:scale-[0.98]">
-                                        <DiscordIcon className="w-5 h-5 shrink-0" />
-                                        {t.joinDiscord}
+                                    <a href="https://x.com/oFLaGx" target="_blank" rel="noopener noreferrer"
+                                        className="btn-arena btn-x inline-flex items-center justify-center gap-2.5 px-8 py-3.5 rounded-2xl font-black text-[15px] md:text-base active:scale-[0.98]">
+                                        <XIcon className="w-5 h-5 shrink-0" />
+                                        {t.followX}
                                     </a>
                                 </div>
 
                                 {/* stat band */}
                                 <div className="animate-fade-in-up citadel-frame rounded-3xl mt-8 md:mt-10 overflow-hidden" style={{ animationDelay: '500ms' }}>
-                                    {streamInfo.isLive && <div className="h-[3px] bg-gradient-to-l from-[#10B981] via-[#53FC18]/40 to-transparent" />}
-                                    <div className="grid grid-cols-2 divide-x divide-x-reverse divide-[#C9A24B]/15">
+                                    {streamInfo.isLive && <div className="h-[3px] bg-gradient-to-l from-[#E10600] via-[#53FC18]/40 to-transparent" />}
+                                    <div className="grid grid-cols-2 divide-x divide-x-reverse divide-[#FF2233]/15">
                                         {[
                                             { v: socialStats['KICK'] || '—', l: t.statsKick },
-                                            { v: '5', l: t.statsPlatforms },
+                                            { v: '6', l: t.statsPlatforms },
                                         ].map((s, i) => (
                                             <div key={i} className="px-2 sm:px-4 py-4 sm:py-5 text-center min-w-0">
                                                 <p className="font-heading text-xl sm:text-2xl md:text-3xl font-black text-white truncate" dir="ltr">{s.v}</p>
-                                                <p className="text-[9px] md:text-[10px] font-bold text-[#6EE7B7]/60 uppercase tracking-[0.2em] mt-1.5 truncate">{s.l}</p>
+                                                <p className="text-[9px] md:text-[10px] font-bold text-[#FF8A8A]/60 uppercase tracking-[0.2em] mt-1.5 truncate">{s.l}</p>
                                             </div>
                                         ))}
                                     </div>
@@ -996,11 +992,11 @@ export default function App() {
                         {streamInfo.isLive && (
                             <section id="live" className="pt-12 md:pt-16 scroll-mt-28 animate-slide-down">
                                 <Reveal><SectionHeading no="02" title={t.theaterTitle} sub={`${streamInfo.viewers.toLocaleString()} ${t.viewers}`} en="LIVE THEATER" /></Reveal>
-                                <div className="relative rounded-[28px] p-[1px] bg-gradient-to-b from-[#C9A24B]/60 via-white/10 to-transparent shadow-[0_30px_90px_rgba(201,162,75,0.18)]">
+                                <div className="relative rounded-[28px] p-[1px] bg-gradient-to-b from-[#FF2233]/60 via-white/10 to-transparent shadow-[0_30px_90px_rgba(225,6,0,0.18)]">
                                     <div className="rounded-[27px] bg-[#080808] overflow-hidden">
                                     <div className="flex items-center gap-2.5 px-4 md:px-6 py-3 border-b border-white/[0.07] bg-black/60">
                                         <span className="flex gap-1.5" aria-hidden="true">
-                                            <span className="w-2.5 h-2.5 rounded-full bg-[#C9A24B]/80" />
+                                            <span className="w-2.5 h-2.5 rounded-full bg-[#FF2233]/80" />
                                             <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
                                             <span className="w-2.5 h-2.5 rounded-full bg-white/15" />
                                         </span>
@@ -1011,14 +1007,14 @@ export default function App() {
                                     </div>
                                     <div className="flex flex-col xl:flex-row gap-0">
                                         <div className="flex-1 min-w-0 min-h-0 p-3 md:p-4">
-                                            <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-[#C9A24B]/20">
+                                            <div className="aspect-video rounded-2xl overflow-hidden bg-black border border-[#FF2233]/20">
                                                 <StreamPlayer lang={lang} isLive={streamInfo.isLive} viewers={streamInfo.viewers} channelSlug={CHANNEL_SLUG} poster={branding.bannerImage} />
                                             </div>
                                             <div className="p-4 md:p-5 flex flex-col gap-3">
                                                 <div className="flex items-start justify-between gap-3">
                                                     <div className="min-w-0 flex-1">
                                                         <h3 className="text-lg md:text-2xl font-black text-white truncate" title={displayTitle}>{displayTitle}</h3>
-                                                        <p className="text-sm text-white/50 font-bold mt-1"><span className="gold-text font-black" dir="ltr">XTROET</span> <span className="text-white/25 mx-1">•</span> {displayCategory}</p>
+                                                        <p className="text-sm text-white/50 font-bold mt-1"><span className="gold-text font-black" dir="ltr">OFLAG</span> <span className="text-white/25 mx-1">•</span> {displayCategory}</p>
                                                     </div>
                                                     <button onClick={handleShare} aria-label="Share"
                                                         className="btn-arena w-11 h-11 rounded-xl bg-white/[0.06] border border-white/10 text-white/70 hover:text-white flex items-center justify-center shrink-0">
@@ -1048,7 +1044,7 @@ export default function App() {
                         <section id="community" className="pt-12 md:pt-16 scroll-mt-28">
                             <Reveal><SectionHeading no="03" title={t.communityTitle} en="COMMUNITY HQ" /></Reveal>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
-                                <Reveal delay={0}><DiscordWidget lang={lang} /></Reveal>
+                                <Reveal delay={0}><XWidget lang={lang} /></Reveal>
                                 <Reveal delay={100}><YoutubeWidget lang={lang} /></Reveal>
                             </div>
                         </section>
@@ -1059,33 +1055,27 @@ export default function App() {
                             <Reveal delay={80}><SupportArena lang={lang} supporters={[]} /></Reveal>
                         </section>
 
-                        {/* ===== SIRAH — Nasser's photo deck, above Honor ===== */}
-                        <section id="album" className="pt-12 md:pt-16 scroll-mt-28">
-                            <Reveal><SectionHeading no="05" title={t.albumTitle} sub={t.albumSub} en="SIRAH" /></Reveal>
-                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-72 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><AlbumSection lang={lang} /></Suspense></Reveal>
-                        </section>
-
                         {/* ===== HONOR (gifters + last session when offline + chat legends) ===== */}
                         <section id="honor" className="pt-12 md:pt-16 scroll-mt-28">
-                            <Reveal><SectionHeading no="06" title={t.honorTitle} sub={t.honorSub} en="HALL OF FAME" /></Reveal>
+                            <Reveal><SectionHeading no="05" title={t.honorTitle} sub={t.honorSub} en="HALL OF FAME" /></Reveal>
                             <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><HonorSection lang={lang} report={!streamInfo.isLive ? (<div id="live" className="scroll-mt-28"><LastSessionReport lang={lang} data={lastSession} clips={clips} past={pastSessions} /></div>) : null} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== ARCHIVE ===== */}
                         <section id="archive" className="pt-12 md:pt-16 scroll-mt-28">
-                            <Reveal><SectionHeading no="07" title={t.archiveTitle} sub={t.archiveSub} en="ARCHIVE" /></Reveal>
+                            <Reveal><SectionHeading no="06" title={t.archiveTitle} sub={t.archiveSub} en="ARCHIVE" /></Reveal>
                             <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ArchiveSection lang={lang} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== FOOTER ===== */}
                         <footer className="mt-16 md:mt-24 rounded-[28px] border border-white/10 bg-black/60 backdrop-blur-xl overflow-hidden relative">
-                            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-l from-transparent via-[#10B981]/70 to-transparent" />
+                            <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-l from-transparent via-[#E10600]/70 to-transparent" />
                             <div className="p-8 md:p-12 text-center relative">
-                                <p className="font-gaming text-[18vw] md:text-[120px] leading-none text-stroke opacity-40 select-none" dir="ltr" aria-hidden="true">XTROET</p>
+                                <p className="font-gaming text-[18vw] md:text-[120px] leading-none text-stroke opacity-40 select-none" dir="ltr" aria-hidden="true">OFLAG</p>
                                 <div className="flex flex-wrap justify-center gap-2.5 -mt-4 md:-mt-8 relative">
                                     {socials.slice(0, 5).map(s => (
                                         <a key={s.name} href={s.url} target="_blank" rel="noopener noreferrer" aria-label={s.name}
-                                            className="btn-arena w-11 h-11 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-[#C9A24B]/50">
+                                            className="btn-arena w-11 h-11 rounded-xl bg-white/[0.05] border border-white/10 flex items-center justify-center text-white/60 hover:text-white hover:border-[#FF2233]/50">
                                             <span className="scale-[0.8] block">{s.icon}</span>
                                         </a>
                                     ))}

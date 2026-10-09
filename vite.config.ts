@@ -1,4 +1,4 @@
-import path from 'path';
+﻿import path from 'path';
 import { defineConfig, loadEnv } from 'vite';
 import react from '@vitejs/plugin-react';
 
@@ -108,7 +108,7 @@ export default defineConfig(({ mode }) => {
               // ---- /api/social : عدّادات التواصل الحية محلياً (مرآة api/social.ts) ----
               const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
               const platform = (url.searchParams.get('platform') || '').toLowerCase();
-              const HANDLES: Record<string, string> = { tiktok: 'ixtroet', instagram: 'xtroet', twitter: 'xtroet', snapchat: 'xtroet', youtube: 'UCzTrJVRcJjcpUMKojPsgbDw' };
+              const HANDLES: Record<string, string> = { tiktok: 'oflagx', instagram: 'oflagx', twitter: 'oFLaGx', snapchat: 'oflagx', youtube: 'oflagx' };
               const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
               const parseCompact = (input: any): number | null => {
                 if (typeof input === 'number' && Number.isFinite(input)) return Math.round(input);

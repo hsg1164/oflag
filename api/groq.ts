@@ -1,5 +1,5 @@
-// ============================================================
-//  XTROET AI — GROQ Backend (Vercel Serverless Function)
+﻿// ============================================================
+//  OFLAG AI — GROQ Backend (Vercel Serverless Function)
 //  POST /api/groq  { messages: [{role, content}] }
 //
 //  نظام التبديل التلقائي (Failover):

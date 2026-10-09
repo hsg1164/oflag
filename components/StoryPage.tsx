@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { Language } from '../types';
 
 /* ============================================================
-   STORY — a STANDALONE cinematic page about Nasser Alanazi.
+   STORY — a STANDALONE cinematic page about oFLaG.
    It owns the whole screen: letterbox cinema, full-bleed
    chapter photography, rain, lightning, film grain, Ken Burns.
    Reached through #story, exits back to the site.
@@ -46,8 +46,8 @@ const CHAPTERS: Chapter[] = [
         photo: 1,
         kickerAr: 'الميدان', kickerEn: 'The field',
         headAr: 'رجلٌ لا يتراجع', headEn: 'A man who never steps back',
-        textAr: 'لم تكن طريق ناصر العنزي سهلة. كان الميدان هو المكان الذي أثبت فيه نفسه، حالةً بعد حالة، وليلةً بعد ليلة.',
-        textEn: 'Nasser Alanazi’s path was never easy. The field was where he proved himself — case after case, night after night.',
+        textAr: 'لم تكن طريق اوفلاق سهلة. كان الميدان هو المكان الذي أثبت فيه نفسه، حالةً بعد حالة، وليلةً بعد ليلة.',
+        textEn: 'oFLaG’s path was never easy. The field was where he proved himself — case after case, night after night.',
     },
     {
         photo: 9,
@@ -67,8 +67,8 @@ const CHAPTERS: Chapter[] = [
         photo: 6,
         kickerAr: 'السنوات', kickerEn: 'The years',
         headAr: 'سنواتٌ من التعب', headEn: 'Years of toil',
-        textAr: 'مرت السنوات، وبقي ناصر حاضرًا في الميدان. لم يكن يبحث عن الطريق الأسهل، بل عن الطريق الذي يستحق أن يصعده.',
-        textEn: 'The years passed, and Nasser stayed present in the field. He never looked for the easier road — only the one worth climbing.',
+        textAr: 'مرت السنوات، وبقي اوفلاق حاضرًا في الميدان. لم يكن يبحث عن الطريق الأسهل، بل عن الطريق الذي يستحق أن يصعده.',
+        textEn: 'The years passed, and oFLaG stayed present in the field. He never looked for the easier road — only the one worth climbing.',
     },
     {
         photo: 11,
@@ -98,8 +98,8 @@ const CHAPTERS: Chapter[] = [
         photo: 2,
         kickerAr: 'الظلام', kickerEn: 'The darkness',
         headAr: 'محاولات الاغتيال', headEn: 'The assassination attempts',
-        textAr: 'وقام بكر بمحاولات اغتيال لناصر العنزي. والمطر كان يهطل على المستري تاون كل ليلة.',
-        textEn: 'And Bakor made attempts on Nasser Alanazi’s life. The rain kept falling over Mistri Town every night.',
+        textAr: 'وقام بكر بمحاولات اغتيال لاوفلاق. والمطر كان يهطل على المستري تاون كل ليلة.',
+        textEn: 'And Bakor made attempts on oFLaG’s life. The rain kept falling over Mistri Town every night.',
         img: '/album/photo-output.png',
         pos: 'center 50%',
         zoom: 1.06,
@@ -108,45 +108,45 @@ const CHAPTERS: Chapter[] = [
         photo: 12,
         kickerAr: 'المواجهة', kickerEn: 'The confrontation',
         headAr: 'حالةٌ لم تنتهِ', headEn: 'A case never closed',
-        textAr: 'لم تنتهِ المواجهة عند الخطف ومحاولات الاغتيال. بقيت القضية مفتوحة، وبقي ناصر في قلب الأحداث، حتى دخلت فرقة SSF على الخط.',
-        textEn: 'The confrontation did not end with abduction and assassination attempts. The case stayed open, Nasser stayed at the heart of events — until the SSF squad entered the line.',
+        textAr: 'لم تنتهِ المواجهة عند الخطف ومحاولات الاغتيال. بقيت القضية مفتوحة، وبقي اوفلاق في قلب الأحداث، حتى دخلت فرقة SSF على الخط.',
+        textEn: 'The confrontation did not end with abduction and assassination attempts. The case stayed open, oFLaG stayed at the heart of events — until the SSF squad entered the line.',
     },
     {
         photo: 8,
         kickerAr: 'فرقة SSF', kickerEn: 'The SSF squad',
         headAr: 'حالة بكر باكور', headEn: 'The Bakor Bakor case',
-        textAr: 'ثم قام عبدالصمد القرشي بمباشرة حالة بكر باكور مع فرقة SSF، واستمرت الأحداث حتى قبض عبدالصمد القرشي على بكر، وكان معه ناصر العنزي في موقع بار ساندي.',
-        textEn: 'AbdulSamad Al-Qurshi took over the Bakor Bakor case with the SSF squad. It ran until Al-Qurshi arrested Bakor — with Nasser Alanazi beside him at the Bar Sandy site.',
+        textAr: 'ثم قام عبدالصمد القرشي بمباشرة حالة بكر باكور مع فرقة SSF، واستمرت الأحداث حتى قبض عبدالصمد القرشي على بكر، وكان معه اوفلاق في موقع بار ساندي.',
+        textEn: 'AbdulSamad Al-Qurshi took over the Bakor Bakor case with the SSF squad. It ran until Al-Qurshi arrested Bakor — with oFLaG beside him at the Bar Sandy site.',
     },
     {
         photo: 7,
         kickerAr: 'ما بعد القبض', kickerEn: 'After the arrest',
         headAr: 'حين انقلبت الرواية', headEn: 'When the narrative flipped',
-        textAr: 'بعد القبض على بكر، لم تنتهِ الحكاية كما توقع الجميع. بدأت الشكوك تدور حول ناصر، وتحوّل العسكري الذي عرفه الميدان إلى رجلٍ تحاصره الاتهامات.',
-        textEn: 'After Bakor’s arrest, the story did not end the way everyone expected. Doubts began circling Nasser, and the officer the field had known became a man cornered by accusations.',
+        textAr: 'بعد القبض على بكر، لم تنتهِ الحكاية كما توقع الجميع. بدأت الشكوك تدور حول اوفلاق، وتحوّل العسكري الذي عرفه الميدان إلى رجلٍ تحاصره الاتهامات.',
+        textEn: 'After Bakor’s arrest, the story did not end the way everyone expected. Doubts began circling oFLaG, and the officer the field had known became a man cornered by accusations.',
     },
     {
         photo: 14,
         kickerAr: 'الاتهام', kickerEn: 'The accusation',
         headAr: 'العسكري الشريف متهم', headEn: 'The honest officer, accused',
-        textAr: 'ثم ظنّوا أن العسكري الشريف ناصر العنزي فاسد، بسبب فساد عبدالصمد القرشي وتحيز القادة له.',
-        textEn: 'They then assumed the honorable officer Nasser Alanazi was corrupt — because of Al-Qurshi’s corruption and the commanders’ bias toward him.',
+        textAr: 'ثم ظنّوا أن العسكري الشريف اوفلاق فاسد، بسبب فساد عبدالصمد القرشي وتحيز القادة له.',
+        textEn: 'They then assumed the honorable officer oFLaG was corrupt — because of Al-Qurshi’s corruption and the commanders’ bias toward him.',
     },
     {
         photo: 13,
         kickerAr: 'النهاية', kickerEn: 'The end',
         headAr: 'حين لا ينصف الحكم صاحبه', headEn: 'When the verdict fails its man',
-        textAr: 'ضاقت الدائرة حول ناصر العنزي. وبين الاتهام والتحيز والفساد، وصل الأمر إلى النهاية التي لم يكن يتوقعها أحد لرجلٍ قضى سنواته في الميدان.',
-        textEn: 'The circle tightened around Nasser Alanazi. Between accusation, bias, and corruption, it came to the end no one had imagined for a man who spent his years in the field.',
+        textAr: 'ضاقت الدائرة حول اوفلاق. وبين الاتهام والتحيز والفساد، وصل الأمر إلى النهاية التي لم يكن يتوقعها أحد لرجلٍ قضى سنواته في الميدان.',
+        textEn: 'The circle tightened around oFLaG. Between accusation, bias, and corruption, it came to the end no one had imagined for a man who spent his years in the field.',
         pos: 'center 18%',
         zoom: 1.06,
     },
     {
         photo: 15,
         kickerAr: '05 / 05 / 2024', kickerEn: '05 / 05 / 2024',
-        headAr: 'حكم ناصر العنزي', headEn: 'The verdict',
-        textAr: 'تم إعدام ناصر العنزي من قبل عبدالصمد القرشي الفاسد. والمطر لم يتوقف.',
-        textEn: 'Nasser Alanazi was executed by the corrupt AbdulSamad Al-Qurshi. And the rain never stopped.',
+        headAr: 'حكم اوفلاق', headEn: 'The verdict',
+        textAr: 'تم إعدام اوفلاق من قبل عبدالصمد القرشي الفاسد. والمطر لم يتوقف.',
+        textEn: 'oFLaG was executed by the corrupt AbdulSamad Al-Qurshi. And the rain never stopped.',
     },
 ];
 
@@ -352,7 +352,7 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
             .st-scrim{position:absolute;inset:0;pointer-events:none;
                 background:
                     linear-gradient(180deg,rgba(0,0,0,.82) 0%,rgba(0,0,0,.25) 26%,rgba(0,0,0,.18) 52%,rgba(0,0,0,.62) 76%,rgba(0,0,0,.94) 100%),
-                    radial-gradient(110% 70% at 50% 108%, rgba(16,185,129,.16), transparent 60%)}
+                    radial-gradient(110% 70% at 50% 108%, rgba(225,6,0,.16), transparent 60%)}
             .st-grain{position:absolute;inset:0;pointer-events:none;opacity:.16;mix-blend-mode:overlay;
                 background-image:radial-gradient(rgba(255,255,255,.6) 1px, transparent 1px);
                 background-size:3px 3px;animation:st-gr 1.2s steps(3) infinite}
@@ -378,29 +378,29 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
                 display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.75);
                 background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
                 backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:all .3s ease}
-            .st-x:hover{color:#04120D;background:#A7F3D0;border-color:transparent;transform:rotate(90deg)}
+            .st-x:hover{color:#060606;background:#FFCFCF;border-color:transparent;transform:rotate(90deg)}
             .st-replay{width:auto;height:54;padding:0 1.4rem;border-radius:20px;flex:none;cursor:pointer;font-family:inherit;
                 display:inline-flex;align-items:center;justify-content:center;gap:.6rem;
                 font-size:14px;font-weight:900;white-space:nowrap;flex-direction:row;
                 color:rgba(255,255,255,.75);background:rgba(255,255,255,.07);border:1px solid rgba(255,255,255,.14);
                 backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);transition:background .3s ease,color .3s ease,transform .3s ease}
-            .st-replay:hover{color:#04120D;background:#A7F3D0;border-color:transparent;transform:none}
+            .st-replay:hover{color:#060606;background:#FFCFCF;border-color:transparent;transform:none}
             .st-replay:active{transform:scale(.97)}
             .st-count{margin-inline-start:auto;display:inline-flex;align-items:baseline;gap:.5rem;
                 font-size:11px;font-weight:900;letter-spacing:.2em;color:rgba(255,255,255,.75)}
             .st-count b{font-size:20px;color:#fff}
             .st-count span{color:rgba(255,255,255,.35)}
             .st-play{width:42px;height:42px;border-radius:14px;flex:none;cursor:pointer;font-family:inherit;
-                display:inline-flex;align-items:center;justify-content:center;color:#A7F3D0;
-                background:rgba(16,185,129,.12);border:1px solid rgba(16,185,129,.35);transition:all .3s ease}
-            .st-play:hover{background:rgba(16,185,129,.25)}
+                display:inline-flex;align-items:center;justify-content:center;color:#FFCFCF;
+                background:rgba(225,6,0,.12);border:1px solid rgba(225,6,0,.35);transition:all .3s ease}
+            .st-play:hover{background:rgba(225,6,0,.25)}
             /* chapter text */
             .st-body{position:absolute;z-index:10;left:0;right:0;bottom:calc(clamp(38px,7vh,64px) + 76px);
                 padding:0 clamp(1.1rem,5vw,3.4rem);max-width:900px}
             .st-kick{display:inline-flex;align-items:center;gap:.55rem;font-size:10.5px;font-weight:900;
                 letter-spacing:.26em;text-transform:uppercase;color:rgba(167,243,208,.85)}
-            .st-kick::before{content:"";width:7px;height:7px;transform:rotate(45deg);background:#C9A24B;flex:none;
-                box-shadow:0 0 12px rgba(201,162,75,.9)}
+            .st-kick::before{content:"";width:7px;height:7px;transform:rotate(45deg);background:#FF2233;flex:none;
+                box-shadow:0 0 12px rgba(225,6,0,.9)}
             .st-head{margin:.8rem 0 0;font-size:clamp(1.9rem,7vw,3.6rem);line-height:1.08;font-weight:900;
                 letter-spacing:-.01em;text-shadow:0 10px 44px rgba(0,0,0,.8)}
             [dir="rtl"] .st-head{letter-spacing:0!important}
@@ -414,18 +414,18 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
                 padding:.85rem clamp(1.1rem,5vw,3.4rem);display:flex;align-items:center;gap:.8rem;
                 background:linear-gradient(180deg,transparent,rgba(0,0,0,.55))}
             .st-arrow{width:46px;height:46px;border-radius:999px;flex:none;cursor:pointer;font-family:inherit;
-                display:inline-flex;align-items:center;justify-content:center;color:#A7F3D0;
-                background:rgba(16,185,129,.1);border:1px solid rgba(16,185,129,.35);
+                display:inline-flex;align-items:center;justify-content:center;color:#FFCFCF;
+                background:rgba(225,6,0,.1);border:1px solid rgba(225,6,0,.35);
                 backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);
                 transition:all .3s cubic-bezier(.16,1,.3,1)}
-            .st-arrow:hover{color:#04120D;background:linear-gradient(180deg,#A7F3D0,#10B981 55%,#047857);
+            .st-arrow:hover{color:#060606;background:linear-gradient(180deg,#FFCFCF,#E10600 55%,#4A0200);
                 border-color:transparent;transform:scale(1.07)}
             .st-arrow:active{transform:scale(.94)}
             .st-segs{flex:1;display:flex;gap:.45rem;min-width:0}
             .st-seg{position:relative;flex:1;height:4px;border-radius:999px;background:rgba(255,255,255,.14);overflow:hidden}
-            .st-seg.done{background:linear-gradient(90deg,#C9A24B,#A7F3D0 60%,#10B981)}
+            .st-seg.done{background:linear-gradient(90deg,#FF2233,#FFCFCF 60%,#E10600)}
             .st-seg.cur .st-seg-fill{position:absolute;inset-block:0;inset-inline-start:0;border-radius:999px;
-                background:linear-gradient(90deg,#F4D98A,#A7F3D0 55%,#10B981);
+                background:linear-gradient(90deg,#FFD0D0,#FFCFCF 55%,#E10600);
                 box-shadow:0 0 12px rgba(167,243,208,.8);
                 animation:st-fill 7s linear forwards}
             @keyframes st-fill{from{width:0%}to{width:100%}}
@@ -442,20 +442,20 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
             @keyframes st-float{0%,100%{transform:translateY(0) rotate(var(--r))}50%{transform:translateY(-16px) rotate(var(--r))}}
             .st-eyebrow{display:inline-flex;align-items:center;gap:.6rem;padding:.55rem 1.05rem;border-radius:999px;
                 font-size:10.5px;font-weight:900;letter-spacing:.24em;text-transform:uppercase;color:rgba(167,243,208,.85);
-                background:rgba(16,185,129,.09);border:1px solid rgba(16,185,129,.28)}
+                background:rgba(225,6,0,.09);border:1px solid rgba(225,6,0,.28)}
             .st-title{font-size:clamp(2.6rem,11vw,6rem);line-height:1.02;font-weight:900;margin:1.4rem 0 0;
-                background:linear-gradient(178deg,#FFFFFF 0%,#EAFBF3 40%,#A7F3D0 76%,#34D399 100%);
+                background:linear-gradient(178deg,#FFFFFF 0%,#EAFBF3 40%,#FFCFCF 76%,#FF4D5A 100%);
                 -webkit-background-clip:text;background-clip:text;color:transparent;
-                filter:drop-shadow(0 14px 50px rgba(16,185,129,.35))}
+                filter:drop-shadow(0 14px 50px rgba(225,6,0,.35))}
             [dir="rtl"] .st-title{letter-spacing:0!important}
             .st-meta{margin:1.1rem 0 0;display:flex;align-items:center;justify-content:center;gap:.8rem;
                 font-size:10.5px;font-weight:900;letter-spacing:.24em;color:rgba(255,255,255,.45);text-transform:uppercase}
-            .st-meta i{width:5px;height:5px;transform:rotate(45deg);background:rgba(201,162,75,.9);flex:none}
+            .st-meta i{width:5px;height:5px;transform:rotate(45deg);background:rgba(225,6,0,.9);flex:none}
             .st-begin{position:relative;margin-top:2.2rem;display:inline-flex;align-items:center;gap:.85rem;
                 padding:1.05rem 2.4rem;border-radius:20px;cursor:pointer;font-family:inherit;
-                font-size:15px;font-weight:900;color:#04120D;overflow:hidden;
-                background:linear-gradient(180deg,#A7F3D0,#10B981 55%,#047857);
-                box-shadow:0 22px 50px -14px rgba(16,185,129,.9),inset 0 1px 0 rgba(255,255,255,.55);
+                font-size:15px;font-weight:900;color:#060606;overflow:hidden;
+                background:linear-gradient(180deg,#FFCFCF,#E10600 55%,#4A0200);
+                box-shadow:0 22px 50px -14px rgba(225,6,0,.9),inset 0 1px 0 rgba(255,255,255,.55);
                 transition:transform .35s cubic-bezier(.16,1,.3,1)}
             .st-begin:hover{transform:translateY(-2px) scale(1.02)}
             .st-begin:active{transform:scale(.97)}
@@ -467,9 +467,9 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
             [dir="rtl"] .st-end-quote{letter-spacing:0!important}
             .st-end-meta{margin-top:1.2rem;display:flex;align-items:center;justify-content:center;gap:.8rem;
                 font-size:10.5px;font-weight:900;letter-spacing:.24em;color:rgba(255,255,255,.4);text-transform:uppercase}
-            .st-end-meta i{width:5px;height:5px;transform:rotate(45deg);background:rgba(201,162,75,.9);flex:none}
+            .st-end-meta i{width:5px;height:5px;transform:rotate(45deg);background:rgba(225,6,0,.9);flex:none}
             .st-end-btns{margin-top:2.2rem;display:flex;flex-wrap:wrap;align-items:center;justify-content:center;gap:.8rem}
-            a:focus-visible,button:focus-visible{outline:2px solid #10B981;outline-offset:3px;border-radius:14px}
+            a:focus-visible,button:focus-visible{outline:2px solid #E10600;outline-offset:3px;border-radius:14px}
             @media(prefers-reduced-motion:reduce){
                 .st-photo,.st-grain,.st-bolt,.st-pol,.st-seg.cur .st-seg-fill{animation:none!important}
                 .st-rise{opacity:1!important;transform:none!important}
@@ -518,14 +518,14 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
                     ))}
                     <div className="relative" style={{ zIndex: 2 }}>
                         <span className="st-eyebrow">
-                            <span className="w-1.5 h-1.5 rounded-full bg-[#10B981] animate-pulse" aria-hidden="true" />
+                            <span className="w-1.5 h-1.5 rounded-full bg-[#E10600] animate-pulse" aria-hidden="true" />
                             <span dir="ltr">{isAr ? 'فيلم قصير' : 'A short film'}</span>
                         </span>
                         <h1 className={`st-title ${isAr ? 'font-arabic' : ''}`}>
                             {isAr ? 'سيرةٌ تحت المطر' : 'A life under the rain'}
                         </h1>
                         <div className="st-meta">
-                            <span>{isAr ? 'ناصر العنزي' : 'Nasser Alanazi'}</span>
+                            <span>{isAr ? 'اوفلاق' : 'oFLaG'}</span>
                             <i aria-hidden="true" />
                             <span dir="ltr">05 / 05 / 2024</span>
                             <i aria-hidden="true" />
@@ -533,7 +533,7 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
                         </div>
                         <div>
                             <button type="button" className="st-begin" onClick={() => setStarted(true)} autoFocus>
-                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#04120D] text-[#6EE7B7]" aria-hidden="true">
+                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#060606] text-[#FF8A8A]" aria-hidden="true">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                                 </span>
                                 {isAr ? 'ابدأ السيرة' : 'Begin the story'}
@@ -604,8 +604,8 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
                 <div className="st-end">
                     <div>
                         <span className="st-eyebrow">
-                            <span className="w-1.5 h-1.5 rotate-45 bg-[#C9A24B]" aria-hidden="true" />
-                            <span dir="ltr">NASSER ALANAZI</span>
+                            <span className="w-1.5 h-1.5 rotate-45 bg-[#FF2233]" aria-hidden="true" />
+                            <span dir="ltr">OFLAG</span>
                         </span>
                         <p className={`st-end-quote mt-6 ${isAr ? 'font-arabic' : ''}`}>
                             {isAr
@@ -618,11 +618,11 @@ export const StoryPage: React.FC<{ lang: Language }> = ({ lang }) => {
                             <span dir="ltr">05 / 05 / 2024</span>
                         </div>
                         <div className="st-end-btns">
-                            <button type="button" className="st-begin" style={{ marginTop: 0 }} onClick={() => exit('#album')}>
-                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#04120D] text-[#6EE7B7]" aria-hidden="true">
+                            <button type="button" className="st-begin" style={{ marginTop: 0 }} onClick={() => exit('#top')}>
+                                <span className="inline-flex items-center justify-center w-8 h-8 rounded-full bg-[#060606] text-[#FF8A8A]" aria-hidden="true">
                                     <svg width="12" height="12" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                                 </span>
-                                {isAr ? 'ادخل سيرة ناصر' : 'Enter Nasser’s sirah'}
+                                {isAr ? 'عودة للموقع' : 'Back to site'}
                             </button>
                             <button type="button" className="st-replay" onClick={() => { setCh(0); setEnded(false); }}>
                                 <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.3} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" /></svg>

@@ -1,10 +1,10 @@
-// Live social counters — 3-layer architecture per platform:
+﻿// Live social counters — 3-layer architecture per platform:
 //   1) /api/social (server-side: Vercel Edge in prod, vite middleware in dev)
 //   2) Direct client fetch (CORS-open sources only)
 //   3) Static fallback (neutral until live numbers land)
 //
-// XTROET handles:
-//   TikTok @ixtroet | X @xtroet | Instagram @xtroet | YouTube @XTROET
+// OFLAG handles:
+//   TikTok @oflagx | X @oFLaGx | Snapchat @oflagx | YouTube @oflagx
 
 export interface SocialMediaStats {
   instagram?: number;
@@ -15,9 +15,9 @@ export interface SocialMediaStats {
 }
 
 export const FALLBACK = {
-  instagram: 10500, // owner-verified (@xtroet) — live API used when it returns a sane number
-  tiktok: 27200, // owner-verified (@ixtroet) — live API used when it returns a sane number
-  twitter: 0,
+  instagram: 0,
+  tiktok: 0,
+  twitter: 26700, // verified live (@oFLaGx, Oct 2026)
   youtube: 0,
 };
 
@@ -27,7 +27,7 @@ export const VERIFIED_INSTAGRAM = 10500;
 /** Owner-verified TikTok count — shown when the live API reads stale/wrong data. */
 export const VERIFIED_TIKTOK = 27200;
 
-const CACHE_KEY = 'xtroet_social_cache_v1';
+const CACHE_KEY = 'oflag_social_cache_v1';
 export const SOCIAL_TTL_MS = 5 * 60 * 1000;
 
 async function fetchJson(url: string, timeoutMs = 9000): Promise<any> {
@@ -82,7 +82,7 @@ function num(v: unknown): number | null {
   return null;
 }
 
-export async function getInstagramFollowers(username = 'xtroet'): Promise<number> {
+export async function getInstagramFollowers(username = 'oflag'): Promise<number> {
   const via = await viaServerApi('instagram');
   // Live only when sane — the endpoint sometimes reads a stale/empty profile
   if (via && via >= 1000) return via;
@@ -101,7 +101,7 @@ export async function getSnapchatFollowers(): Promise<number> {
   return (await viaServerApi('snapchat')) ?? 0;
 }
 
-export async function getTikTokFollowers(username = 'ixtroet'): Promise<number> {
+export async function getTikTokFollowers(username = 'oflagx'): Promise<number> {
   const via = await viaServerApi('tiktok');
   // Live only when sane — otherwise fall back to the owner-verified number
   if (via && via >= 1000) return via;
@@ -149,7 +149,7 @@ export async function getTikTokFollowers(username = 'ixtroet'): Promise<number> 
   return FALLBACK.tiktok;
 }
 
-export async function getTwitterFollowers(username = 'xtroet'): Promise<number> {
+export async function getTwitterFollowers(username = 'oFLaGx'): Promise<number> {
   const via = await viaServerApi('twitter');
   if (via) return via;
   // Layer 2 — FixTweet API (usually CORS-open)
@@ -161,7 +161,7 @@ export async function getTwitterFollowers(username = 'xtroet'): Promise<number> 
   return FALLBACK.twitter;
 }
 
-export async function getYouTubeSubscribers(channelId = 'UCzTrJVRcJjcpUMKojPsgbDw'): Promise<number> {
+export async function getYouTubeSubscribers(channelId = 'oflagx'): Promise<number> {
   const via = await viaServerApi('youtube');
   if (via) return via;
   // Layer 2 — Mixerno (usually CORS-open)
@@ -175,14 +175,13 @@ export async function getYouTubeSubscribers(channelId = 'UCzTrJVRcJjcpUMKojPsgbD
 }
 
 export async function getAllSocialMediaStats(): Promise<SocialMediaStats> {
-  const [instagram, tiktok, twitter, youtube, snapchat] = await Promise.all([
-    getInstagramFollowers('xtroet'),
-    getTikTokFollowers('ixtroet'),
-    getTwitterFollowers('xtroet'),
-    getYouTubeSubscribers('UCzTrJVRcJjcpUMKojPsgbDw'),
+  const [tiktok, twitter, youtube, snapchat] = await Promise.all([
+    getTikTokFollowers('oflagx'),
+    getTwitterFollowers('oFLaGx'),
+    getYouTubeSubscribers('oflagx'),
     getSnapchatFollowers(),
   ]);
-  const stats = { instagram, tiktok, twitter, youtube, snapchat };
+  const stats = { tiktok, twitter, youtube, snapchat };
   try {
     localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), stats }));
   } catch {}

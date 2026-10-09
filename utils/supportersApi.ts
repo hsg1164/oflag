@@ -1,4 +1,4 @@
-// Streamlabs public tip leaderboard — live donor names + ranks.
+﻿// Streamlabs public tip leaderboard — live donor names + ranks.
 // No token needed (public v6 leaderboard endpoint).
 // Layers: 1) /api/kick proxy (dev+prod, no CORS) 2) direct fetch 3) cache.
 
@@ -12,7 +12,7 @@ export interface TipDonor {
 export type TipInterval = 'all' | 'week' | 'month';
 
 const BASE = 'https://streamlabs.com/api/v6/59249eb4ac505bd/leaderboard/tip';
-const CACHE_PREFIX = 'xtroet_tipboard_';
+const CACHE_PREFIX = 'oflag_tipboard_';
 export const TIP_TTL_MS = 5 * 60 * 1000;
 
 function normalize(input: any): TipDonor[] {

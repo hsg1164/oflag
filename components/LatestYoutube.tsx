@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+﻿import React, { useState, useEffect } from 'react';
 import { Language } from '../types';
 
 interface LatestYoutubeProps {
@@ -8,9 +8,9 @@ interface LatestYoutubeProps {
 export const LatestYoutube: React.FC<LatestYoutubeProps> = ({ lang }) => {
   const [video, setVideo] = useState<any>(null);
   const [loading, setLoading] = useState(true);
-  // XTROET official channel (@XTROET)
-  const channelId = 'UCzTrJVRcJjcpUMKojPsgbDw';
-  const channelUrl = 'https://www.youtube.com/@XTROET';
+  // OFLAG official channel (@oflagx)
+  const channelId = 'oflagx';
+  const channelUrl = 'https://www.youtube.com/@oflagx';
 
   useEffect(() => {
     const fetchVideo = async () => {

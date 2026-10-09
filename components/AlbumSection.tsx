@@ -1,8 +1,8 @@
-import React, { useCallback, useEffect, useRef, useState } from 'react';
+﻿import React, { useCallback, useEffect, useRef, useState } from 'react';
 import type { Language } from '../types';
 
 /* ============================================================
-   ALBUM — final section of the XTROET hub.
+   ALBUM — final section of the OFLAG hub.
    17 photos stacked as a 3D deck, switchable with arrows,
    swipe, filmstrip, keyboard, autoplay and a full lightbox.
    ============================================================ */
@@ -15,17 +15,17 @@ const PHOTOS = Array.from({ length: 17 }, (_, i) => ({
 /* ---------- EDITABLE COPY — replace the text here when the final version arrives ---------- */
 const IDENTITY = {
     ar: {
-        kicker: 'شخصية ناصر العنزي',
-        name: 'ناصر العنزي',
-        latin: 'Nasser Alanazi',
+        kicker: 'شخصية اوفلاق',
+        name: 'اوفلاق',
+        latin: 'oFLaG',
         short: 'عسكري مثابر قديم في مدينة مستري تاون، صعد حتى رئاسة الشرطة.',
         date: '05 / 05 / 2024',
         chips: ['مستري تاون', 'رئيس شرطة', 'بار ساندي', 'SSF'],
     },
     en: {
-        kicker: 'The character of Nasser Alanazi',
-        name: 'Nasser Alanazi',
-        latin: 'Nasser Alanazi',
+        kicker: 'The character of oFLaG',
+        name: 'oFLaG',
+        latin: 'oFLaG',
         short: 'A veteran officer from Mistri Town who rose to police chief.',
         date: '05 / 05 / 2024',
         chips: ['Mistri Town', 'Police chief', 'Bar Sandy', 'SSF'],
@@ -129,9 +129,9 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                        never changes size and the art is letterboxed, never cropped */
                     <div
                         className="relative h-full w-full rounded-[22px] p-[1.5px]"
-                        style={{ background: 'linear-gradient(160deg,#A7F3D0 0%,rgba(16,185,129,.35) 42%,#C9A24B 100%)', boxShadow: '0 0 70px -12px rgba(16,185,129,.65)' }}
+                        style={{ background: 'linear-gradient(160deg,#FFCFCF 0%,rgba(225,6,0,.35) 42%,#FF2233 100%)', boxShadow: '0 0 70px -12px rgba(225,6,0,.65)' }}
                     >
-                        <div className="relative h-full w-full overflow-hidden rounded-[20.5px] border border-white/10 bg-[#04120D]">
+                        <div className="relative h-full w-full overflow-hidden rounded-[20.5px] border border-white/10 bg-[#060606]">
                             {/* blurred copy fills the letterbox bars */}
                             <img
                                 src={p.src}
@@ -153,14 +153,14 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                             <span className="alb-sheen pointer-events-none absolute inset-0" aria-hidden="true" />
                             <span className="pointer-events-none absolute inset-0 ring-1 ring-inset ring-white/[0.07]" aria-hidden="true" />
                             <span className="absolute bottom-3 start-3 inline-flex items-center gap-2 rounded-full bg-black/70 px-3 py-1.5 text-[10px] font-black text-white/85 backdrop-blur border border-white/15">
-                                <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A24B]" aria-hidden="true" />
+                                <span className="h-1.5 w-1.5 rotate-45 bg-[#FF2233]" aria-hidden="true" />
                                 <span dir="ltr">{pad(p.n)} / {pad(total)}</span>
                             </span>
                             <span className="pointer-events-none absolute inset-0 cursor-zoom-in" onClick={() => setBox(true)} aria-hidden="true" />
                         </div>
                     </div>
                 ) : (
-                    <div className="h-full w-full overflow-hidden rounded-[20px] border border-white/10 bg-[#04120D]">
+                    <div className="h-full w-full overflow-hidden rounded-[20px] border border-white/10 bg-[#060606]">
                         <img src={p.src} alt="" loading="lazy" decoding="async" className="h-full w-full object-cover" />
                     </div>
                 )}
@@ -172,13 +172,13 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
         <div className="w-full">
             <style>{`
             .alb-shell{position:relative;border-radius:32px;padding:1px;min-width:0;overflow:hidden;
-                background:linear-gradient(150deg,rgba(16,185,129,.5),rgba(201,162,75,.22) 45%,rgba(16,185,129,.5));
+                background:linear-gradient(150deg,rgba(225,6,0,.5),rgba(225,6,0,.22) 45%,rgba(225,6,0,.5));
                 box-shadow:0 40px 90px -30px rgba(0,0,0,.9)}
             .alb-shell-in{position:relative;border-radius:31px;overflow:hidden;
                 background:linear-gradient(180deg,rgba(9,36,28,.92),rgba(3,11,8,.96))}
             .alb-aura{position:absolute;inset:0;pointer-events:none;
-                background:radial-gradient(520px 220px at 82% -10%,rgba(16,185,129,.18),transparent 70%),
-                           radial-gradient(420px 200px at 8% 108%,rgba(201,162,75,.14),transparent 70%);
+                background:radial-gradient(520px 220px at 82% -10%,rgba(225,6,0,.18),transparent 70%),
+                           radial-gradient(420px 200px at 8% 108%,rgba(225,6,0,.14),transparent 70%);
                 animation:alb-drift 16s ease-in-out infinite alternate}
             @keyframes alb-drift{from{transform:translate3d(-2%,0,0) scale(1)}to{transform:translate3d(2%,1.5%,0) scale(1.06)}}
             /* tall enough that portrait and wide art both breathe inside it */
@@ -186,52 +186,52 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
             @media(min-width:768px){.alb-stage{aspect-ratio:5/4}}
             @media(min-width:1280px){.alb-stage{aspect-ratio:4/3}}
             .alb-reflect{position:absolute;left:8%;right:8%;bottom:-14px;height:70px;border-radius:50%;pointer-events:none;
-                background:radial-gradient(closest-side,rgba(16,185,129,.30),transparent 78%);filter:blur(10px)}
+                background:radial-gradient(closest-side,rgba(225,6,0,.30),transparent 78%);filter:blur(10px)}
             .alb-sheen{position:absolute;inset:0;mix-blend-mode:screen;opacity:.5;
                 background:linear-gradient(115deg,transparent 32%,rgba(255,255,255,.22) 46%,transparent 60%);
                 transform:translateX(-120%);animation:alb-sweep 6.5s ease-in-out infinite}
             @keyframes alb-sweep{0%,72%{transform:translateX(-120%)}88%,100%{transform:translateX(120%)}}
             .alb-btn{position:relative;display:inline-flex;align-items:center;justify-content:center;width:52px;height:52px;
-                border-radius:99px;cursor:pointer;color:#A7F3D0;flex:none;
-                background:rgba(16,185,129,.07);border:1px solid rgba(16,185,129,.28);
+                border-radius:99px;cursor:pointer;color:#FFCFCF;flex:none;
+                background:rgba(225,6,0,.07);border:1px solid rgba(225,6,0,.28);
                 box-shadow:inset 0 1px 0 rgba(255,255,255,.08);transition:all .35s cubic-bezier(.16,1,.3,1)}
-            .alb-btn:hover{color:#04120D;border-color:transparent;transform:translateY(-2px) scale(1.05);
-                background:linear-gradient(180deg,#A7F3D0,#10B981 55%,#047857);
-                box-shadow:0 16px 34px -12px rgba(16,185,129,.8)}
+            .alb-btn:hover{color:#060606;border-color:transparent;transform:translateY(-2px) scale(1.05);
+                background:linear-gradient(180deg,#FFCFCF,#E10600 55%,#4A0200);
+                box-shadow:0 16px 34px -12px rgba(225,6,0,.8)}
             .alb-btn:active{transform:scale(.94)}
             .alb-btn:disabled{opacity:.35;cursor:not-allowed}
             .alb-track{position:relative;height:4px;border-radius:99px;background:rgba(255,255,255,.07);overflow:hidden}
             .alb-fill{position:absolute;inset-block:0;inset-inline-start:0;border-radius:99px;
-                background:linear-gradient(90deg,#C9A24B,#A7F3D0 45%,#10B981);
-                box-shadow:0 0 14px rgba(16,185,129,.7);transition:width .6s cubic-bezier(.16,1,.3,1)}
+                background:linear-gradient(90deg,#FF2233,#FFCFCF 45%,#E10600);
+                box-shadow:0 0 14px rgba(225,6,0,.7);transition:width .6s cubic-bezier(.16,1,.3,1)}
             .alb-auto{position:absolute;inset-block:0;inset-inline-start:0;border-radius:99px;
                 background:linear-gradient(90deg,rgba(255,255,255,.55),rgba(167,243,208,.75));
                 animation:alb-prog 5.2s linear forwards}
             @keyframes alb-prog{from{width:0%}to{width:100%}}
             .alb-strip{max-width:100%;overflow-x:auto;overflow-y:hidden}
             .alb-chip{position:relative;flex:none;width:64px;height:46px;border-radius:13px;overflow:hidden;cursor:pointer;
-                border:1px solid rgba(255,255,255,.1);background:#04120D;padding:0;
+                border:1px solid rgba(255,255,255,.1);background:#060606;padding:0;
                 transition:transform .45s cubic-bezier(.16,1,.3,1),border-color .35s ease,box-shadow .35s ease,opacity .35s ease;opacity:.5}
             .alb-chip img{width:100%;height:100%;object-fit:cover;display:block}
             .alb-chip:hover{opacity:.9;transform:translateY(-3px)}
             .alb-chip.is-active{opacity:1;transform:translateY(-4px) scale(1.06);border-color:transparent;
-                box-shadow:0 0 0 2px #10B981,0 14px 30px -10px rgba(16,185,129,.75)}
-            .alb-chip:focus-visible{outline:2px solid #A7F3D0;outline-offset:3px}
+                box-shadow:0 0 0 2px #E10600,0 14px 30px -10px rgba(225,6,0,.75)}
+            .alb-chip:focus-visible{outline:2px solid #FFCFCF;outline-offset:3px}
             .alb-id-name{position:relative;display:inline-block;
-                background:linear-gradient(165deg,#FFFFFF 0%,#EAFBF3 34%,#A7F3D0 78%,#34D399 100%);
+                background:linear-gradient(165deg,#FFFFFF 0%,#EAFBF3 34%,#FFCFCF 78%,#FF4D5A 100%);
                 -webkit-background-clip:text;background-clip:text;color:transparent;
-                filter:drop-shadow(0 6px 30px rgba(16,185,129,.35))}
+                filter:drop-shadow(0 6px 30px rgba(225,6,0,.35))}
             [dir="rtl"] .alb-id-name{letter-spacing:0!important}
             .alb-rule{position:relative;height:2px;border-radius:99px;
-                background:linear-gradient(90deg,rgba(201,162,75,.85),rgba(16,185,129,.55) 45%,transparent)}
+                background:linear-gradient(90deg,rgba(225,6,0,.85),rgba(225,6,0,.55) 45%,transparent)}
             .alb-rule::before{content:"";position:absolute;inset-inline-start:0;top:50%;width:56px;height:2px;
                 transform:translateY(-50%);border-radius:99px;
-                background:linear-gradient(90deg,#F4D98A,#C9A24B);box-shadow:0 0 16px rgba(201,162,75,.75)}
-            .alb-pill{padding:6px 13px;border-radius:99px;background:rgba(201,162,75,.1);border:1px solid rgba(201,162,75,.28)}
+                background:linear-gradient(90deg,#FFD0D0,#FF2233);box-shadow:0 0 16px rgba(225,6,0,.75)}
+            .alb-pill{padding:6px 13px;border-radius:99px;background:rgba(225,6,0,.1);border:1px solid rgba(225,6,0,.28)}
             /* primary cinematic CTA — emerald, glowing, with a shine sweep + rain shimmer */
-            .alb-prime{background:linear-gradient(180deg,#A7F3D0 0%,#10B981 52%,#047857 100%);
-                box-shadow:0 20px 44px -14px rgba(16,185,129,.85),inset 0 1px 0 rgba(255,255,255,.55),0 0 34px -10px rgba(16,185,129,.6)}
-            .alb-prime:hover{box-shadow:0 26px 56px -14px rgba(16,185,129,.95),inset 0 1px 0 rgba(255,255,255,.55),0 0 44px -10px rgba(16,185,129,.75)}
+            .alb-prime{background:linear-gradient(180deg,#FFCFCF 0%,#E10600 52%,#4A0200 100%);
+                box-shadow:0 20px 44px -14px rgba(225,6,0,.85),inset 0 1px 0 rgba(255,255,255,.55),0 0 34px -10px rgba(225,6,0,.6)}
+            .alb-prime:hover{box-shadow:0 26px 56px -14px rgba(225,6,0,.95),inset 0 1px 0 rgba(255,255,255,.55),0 0 44px -10px rgba(225,6,0,.75)}
             .alb-prime::after{content:"";position:absolute;top:-40%;bottom:-40%;width:34%;left:-75%;
                 background:linear-gradient(105deg,transparent,rgba(255,255,255,.6),transparent);
                 transform:skewX(-18deg);animation:alb-prime-shine 4.6s ease-in-out infinite}
@@ -248,8 +248,8 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                 50%{transform:scale(1.07)}}
             .alb-tag{display:inline-flex;align-items:center;gap:7px;padding:8px 14px;border-radius:99px;
                 font-size:11px;font-weight:800;color:rgba(255,255,255,.68);
-                background:rgba(16,185,129,.06);border:1px solid rgba(16,185,129,.18);transition:all .3s ease}
-            .alb-tag:hover{color:#A7F3D0;border-color:rgba(16,185,129,.45);background:rgba(16,185,129,.1)}
+                background:rgba(225,6,0,.06);border:1px solid rgba(225,6,0,.18);transition:all .3s ease}
+            .alb-tag:hover{color:#FFCFCF;border-color:rgba(225,6,0,.45);background:rgba(225,6,0,.1)}
             .alb-box{position:fixed;inset:0;z-index:130;display:flex;align-items:center;justify-content:center;padding:16px;
                 background:rgba(2,9,7,.9);backdrop-filter:blur(18px) saturate(1.1);-webkit-backdrop-filter:blur(18px) saturate(1.1);
                 animation:alb-fade .35s ease both}
@@ -261,10 +261,10 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
             .alb-x{position:absolute;top:-52px;inset-inline-end:0;width:42px;height:42px;border-radius:14px;cursor:pointer;
                 display:inline-flex;align-items:center;justify-content:center;color:rgba(255,255,255,.75);
                 background:rgba(255,255,255,.06);border:1px solid rgba(255,255,255,.14);transition:all .3s ease}
-            .alb-x:hover{color:#04120D;background:#A7F3D0;border-color:transparent;transform:rotate(90deg)}
+            .alb-x:hover{color:#060606;background:#FFCFCF;border-color:transparent;transform:rotate(90deg)}
             .alb-prime:hover .alb-prime-ic{transform:scale(1.12) rotate(-8deg)}
             @media(prefers-reduced-motion:reduce){.alb-aura,.alb-sheen,.alb-auto,.alb-prime::after,.alb-prime-ic{animation:none}.alb-stage>div{transition:none}}
-            a:focus-visible,button:focus-visible{outline:2px solid #10B981;outline-offset:3px;border-radius:12px}
+            a:focus-visible,button:focus-visible{outline:2px solid #E10600;outline-offset:3px;border-radius:12px}
             `}</style>
 
             {/* flexbox, not grid: a wide child (the filmstrip / the fanned deck) can never
@@ -295,8 +295,8 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                         >
                             {/* header row */}
                             <div className="relative z-10 flex items-center justify-between gap-3 mb-4">
-                                <span className="inline-flex items-center gap-2.5 text-[10px] font-black uppercase text-[#6EE7B7]/70">
-                                    <span className="h-1.5 w-1.5 rounded-full bg-[#10B981] animate-pulse shadow-[0_0_10px_#10B981]" />
+                                <span className="inline-flex items-center gap-2.5 text-[10px] font-black uppercase text-[#FF8A8A]/70">
+                                    <span className="h-1.5 w-1.5 rounded-full bg-[#E10600] animate-pulse shadow-[0_0_10px_#E10600]" />
                                     <span dir="ltr">PHOTO DECK</span>
                                 </span>
                                 <span className="inline-flex items-center gap-2 rounded-full bg-black/45 border border-white/10 px-3 py-1.5">
@@ -332,7 +332,7 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                                         <button
                                             type="button"
                                             onClick={() => setBox(true)}
-                                            className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-white/60 hover:text-[#04120D] hover:bg-[#A7F3D0] hover:border-[#A7F3D0] transition-all duration-300"
+                                            className="inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-1.5 rounded-full bg-white/[0.05] border border-white/10 text-white/60 hover:text-[#060606] hover:bg-[#FFCFCF] hover:border-[#FFCFCF] transition-all duration-300"
                                         >
                                             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.4} aria-hidden="true">
                                                 <path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7" />
@@ -356,7 +356,7 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                                 <span className="text-[10px] font-black uppercase text-white/30">
                                     {isAr ? 'كل الصور' : 'All frames'}
                                 </span>
-                                <span className="text-[10px] font-black text-[#C9A24B]/80" dir="ltr">{pad(total)}</span>
+                                <span className="text-[10px] font-black text-[#FF2233]/80" dir="ltr">{pad(total)}</span>
                             </div>
                             <div
                                 ref={stripRef}
@@ -386,20 +386,20 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                     <div className="relative h-full rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-2xl overflow-hidden">
                         <div
                             className="absolute -top-24 start-0 h-72 w-72 rounded-full blur-[100px] pointer-events-none"
-                            style={{ background: 'radial-gradient(circle, rgba(16,185,129,.20), transparent 70%)' }}
+                            style={{ background: 'radial-gradient(circle, rgba(225,6,0,.20), transparent 70%)' }}
                             aria-hidden="true"
                         />
                         <div
                             className="absolute -bottom-24 end-0 h-72 w-72 rounded-full blur-[100px] pointer-events-none"
-                            style={{ background: 'radial-gradient(circle, rgba(201,162,75,.16), transparent 70%)' }}
+                            style={{ background: 'radial-gradient(circle, rgba(225,6,0,.16), transparent 70%)' }}
                             aria-hidden="true"
                         />
-                        <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-[#C9A24B]/60 to-transparent" aria-hidden="true" />
+                        <span className="absolute inset-x-0 top-0 h-px bg-gradient-to-l from-transparent via-[#FF2233]/60 to-transparent" aria-hidden="true" />
 
                         <div className="relative p-6 sm:p-9 lg:p-10 xl:p-11">
                             {/* ---- primary dossier ---- */}
                             <div className="flex items-center gap-2.5 text-[10px] font-black uppercase text-white/35">
-                                <span className="h-1.5 w-1.5 rotate-45 bg-[#C9A24B]" aria-hidden="true" />
+                                <span className="h-1.5 w-1.5 rotate-45 bg-[#FF2233]" aria-hidden="true" />
                                 <span>{copy.kicker}</span>
                             </div>
 
@@ -419,9 +419,9 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                             </p>
 
                             {/* verdict date */}
-                            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#C9A24B]/25 bg-[#C9A24B]/[0.07] px-4 py-3">
-                                <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#C9A24B]/15 border border-[#C9A24B]/40 shrink-0" aria-hidden="true">
-                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#C9A24B" strokeWidth={2.2} strokeLinecap="round">
+                            <div className="mt-6 flex items-center gap-3 rounded-2xl border border-[#FF2233]/25 bg-[#FF2233]/[0.07] px-4 py-3">
+                                <span className="inline-flex items-center justify-center w-9 h-9 rounded-xl bg-[#FF2233]/15 border border-[#FF2233]/40 shrink-0" aria-hidden="true">
+                                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="#FF2233" strokeWidth={2.2} strokeLinecap="round">
                                         <rect x="3" y="5" width="18" height="16" rx="3" /><path d="M8 3v4M16 3v4M3 11h18" />
                                     </svg>
                                 </span>
@@ -429,14 +429,14 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                                     <p className="text-[10px] font-black uppercase text-white/35">
                                         {isAr ? 'تاريخ التنفيذ' : 'Date of execution'}
                                     </p>
-                                    <p className="text-[15px] sm:text-base font-black text-[#F4D98A] mt-0.5" dir="ltr">{copy.date}</p>
+                                    <p className="text-[15px] sm:text-base font-black text-[#FFD0D0] mt-0.5" dir="ltr">{copy.date}</p>
                                 </div>
                             </div>
 
                             <div className="mt-6 flex flex-wrap gap-2">
                                 {copy.chips.map((c) => (
                                     <span key={c} className="alb-tag" dir={/^[\x00-\x7F]+$/.test(c) ? 'ltr' : undefined}>
-                                        <span className="h-1 w-1 rotate-45 bg-[#10B981]" aria-hidden="true" />
+                                        <span className="h-1 w-1 rotate-45 bg-[#E10600]" aria-hidden="true" />
                                         {c}
                                     </span>
                                 ))}
@@ -446,19 +446,19 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                                 {/* primary: the cinematic story */}
                                 <a
                                     href="#story"
-                                    className="alb-prime group relative inline-flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl font-black text-[15px] sm:text-base text-[#04120D] overflow-hidden transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.99]"
+                                    className="alb-prime group relative inline-flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl font-black text-[15px] sm:text-base text-[#060606] overflow-hidden transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.99]"
                                 >
                                     <span className="alb-prime-ic" aria-hidden="true">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#04120D" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
+                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#060606" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
                                     </span>
                                     {isAr ? 'السيرة السينمائية' : 'The cinematic story'}
                                 </a>
 
                                 <div className="flex flex-wrap items-center gap-3">
-                                    <a href="https://kick.com/xtroet" target="_blank" rel="noopener noreferrer"
-                                        className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl font-black text-[14px] text-white/75 transition-all duration-300 bg-white/[0.05] border border-white/10 hover:text-white hover:border-[#10B981]/50 active:scale-[0.98]"
+                                    <a href="https://kick.com/oflag" target="_blank" rel="noopener noreferrer"
+                                        className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl font-black text-[14px] text-white/75 transition-all duration-300 bg-white/[0.05] border border-white/10 hover:text-white hover:border-[#E10600]/50 active:scale-[0.98]"
                                     >
-                                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#10B981]/20 text-[#6EE7B7]" aria-hidden="true">
+                                        <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-[#E10600]/20 text-[#FF8A8A]" aria-hidden="true">
                                             <svg width="10" height="10" viewBox="0 0 24 24" fill="currentColor"><path d="M8 5v14l11-7z" /></svg>
                                         </span>
                                         {isAr ? 'شاهد البث' : 'Watch Live'}
@@ -467,7 +467,7 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                                     <button
                                         type="button"
                                         onClick={() => setBox(true)}
-                                        className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-black text-[14px] text-white/70 transition-all duration-300 bg-white/[0.05] border border-white/10 hover:text-white hover:border-[#10B981]/50 active:scale-[0.98]"
+                                        className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-2 px-5 py-3.5 rounded-2xl font-black text-[14px] text-white/70 transition-all duration-300 bg-white/[0.05] border border-white/10 hover:text-white hover:border-[#E10600]/50 active:scale-[0.98]"
                                     >
                                         <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.2} strokeLinecap="round" aria-hidden="true">
                                             <rect x="3" y="5" width="18" height="14" rx="3" /><circle cx="9" cy="11" r="2" /><path d="M21 16l-4.5-4.5L7 19" />

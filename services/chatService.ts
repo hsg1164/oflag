@@ -1,4 +1,4 @@
-
+﻿
 import Pusher from 'pusher-js';
 import { ChatMessage } from '../types';
 
@@ -23,7 +23,7 @@ class ChatService {
   private channel: any = null;
 
   private KNOWN_CHATROOM_IDS: Record<string, number> = {
-    // XTROET lookup is fresh from API every time to ensure correct Chatroom ID.
+    // OFLAG lookup is fresh from API every time to ensure correct Chatroom ID.
   };
 
   async getChatroomId(channelSlug: string): Promise<number | null> {
@@ -88,7 +88,7 @@ class ChatService {
 
   private connectionId = 0;
 
-  async connect(channelSlug: string = 'xtroet') {
+  async connect(channelSlug: string = 'oflag') {
     const slug = channelSlug.toLowerCase().trim();
     this.disconnect();
     const myConnectionId = this.connectionId;
@@ -104,7 +104,7 @@ class ChatService {
         return;
       }
 
-      // If xtroet look up fails, log it clearly. We stick to the requested channel to avoid confusion.
+      // If oflag look up fails, log it clearly. We stick to the requested channel to avoid confusion.
 
       if (!chatroomId) {
         console.error(`[ChatService] Could not find ID for ${slug}.`);
