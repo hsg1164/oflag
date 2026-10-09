@@ -443,17 +443,6 @@ export const AlbumSection: React.FC<{ lang: Language }> = ({ lang }) => {
                             </div>
 
                             <div className="mt-8 flex flex-col gap-3">
-                                {/* primary: the cinematic story */}
-                                <a
-                                    href="#story"
-                                    className="alb-prime group relative inline-flex items-center justify-center gap-3 w-full px-6 py-4 rounded-2xl font-black text-[15px] sm:text-base text-[#060606] overflow-hidden transition-all duration-300 hover:-translate-y-0.5 active:scale-[0.99]"
-                                >
-                                    <span className="alb-prime-ic" aria-hidden="true">
-                                        <svg width="18" height="18" viewBox="0 0 24 24" fill="#060606" aria-hidden="true"><path d="M8 5v14l11-7z" /></svg>
-                                    </span>
-                                    {isAr ? 'السيرة السينمائية' : 'The cinematic story'}
-                                </a>
-
                                 <div className="flex flex-wrap items-center gap-3">
                                     <a href="https://kick.com/oflag" target="_blank" rel="noopener noreferrer"
                                         className="flex-1 min-w-[150px] inline-flex items-center justify-center gap-2.5 px-5 py-3.5 rounded-2xl font-black text-[14px] text-white/75 transition-all duration-300 bg-white/[0.05] border border-white/10 hover:text-white hover:border-[#E10600]/50 active:scale-[0.98]"

@@ -10,7 +10,6 @@ import { VodTheater, TheaterItem } from './components/VodTheater';
 // Heavy below-fold / on-demand chunks — split out of the first paint
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
 const ArchiveSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.ArchiveSection })));
-const StoryPage = lazy(() => import('./components/StoryPage').then(m => ({ default: m.StoryPage })));
 const ModeratorsSection = lazy(() => import('./components/ModeratorsSection'));
 
 // --- Constants (OFLAG) ---
@@ -882,37 +881,21 @@ export default function App() {
         document.documentElement.dir = lang === 'ar' ? 'rtl' : 'ltr';
     }, [lang]);
 
-    /* standalone cinematic route — when the hash is #story the whole site
-       steps aside and the story page owns the screen */
-    const [route, setRoute] = useState<string>(() => (typeof window !== 'undefined' ? window.location.hash : ''));
+    /* deep links — smooth-land on the requested section if it exists */
     useEffect(() => {
-        const onH = () => {
-            setRoute(window.location.hash);
-            window.scrollTo(0, 0);
+        const land = () => {
+            const h = window.location.hash;
+            if (h && h.startsWith('#')) {
+                const id = h.slice(1);
+                window.setTimeout(() => {
+                    document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 120);
+            }
         };
-        window.addEventListener('hashchange', onH);
-        return () => window.removeEventListener('hashchange', onH);
+        land();
+        window.addEventListener('hashchange', land);
+        return () => window.removeEventListener('hashchange', land);
     }, []);
-    /* leaving the story: land smoothly on the requested section if it exists */
-    useEffect(() => {
-        if (route && route !== '#story' && route.startsWith('#')) {
-            const id = route.slice(1);
-            const t = window.setTimeout(() => {
-                document.getElementById(id)?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }, 120);
-            return () => window.clearTimeout(t);
-        }
-    }, [route]);
-
-    if (route === '#story') {
-        return (
-            <div className={`relative min-h-screen w-full overflow-hidden bg-black ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}>
-                <Suspense fallback={null}>
-                    <StoryPage lang={lang} />
-                </Suspense>
-            </div>
-        );
-    }
 
     return (
         <div className={`grain relative min-h-screen w-full overflow-x-hidden ${lang === 'ar' ? 'font-arabic' : 'font-sans'}`}>
