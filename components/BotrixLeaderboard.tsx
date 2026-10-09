@@ -1,4 +1,4 @@
-﻿import React, { useEffect, useState, useMemo } from 'react';
+﻿import React, { useEffect, useState, useMemo, useRef } from 'react';
 
 interface BotrixEntry {
   watchtime: number;
@@ -11,6 +11,10 @@ interface BotrixLeaderboardProps {
 }
 
 const API_URL = '/api/kick?endpoint=' + encodeURIComponent('https://botrix.live/api/public/leaderboard?platform=kick&user=oflag');
+const KICK_CH = (name: string) => '/api/kick?endpoint=' + encodeURIComponent(`https://kick.com/api/v2/channels/${name}`);
+
+/* Kick avatars — lazy per-user fetch, cached for the session */
+const AVATAR_CACHE = new Map<string, string>();
 
 /* Botrix watchtime unit = minutes.
    12365 -> 8d 14h 5m  =>  d = v/1440, h = (v%1440)/60, m = v%60 */
@@ -57,6 +61,8 @@ const SkeletonRow: React.FC<{ delay: number }> = ({ delay }) => (
 
 const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
   const [data, setData] = useState<BotrixEntry[] | null>(null);
+  const [avatars, setAvatars] = useState<Record<string, string>>({});
+  const fetchedRef = useRef<Set<string>>(new Set());
 
   useEffect(() => {
     let cancelled = false;
@@ -82,6 +88,39 @@ const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
   }, []);
 
   const rich = useMemo(() => data || [], [data]);
+
+  // Enrich every legend with their Kick profile picture (lazy, batched, cached)
+  useEffect(() => {
+    if (!rich.length) return;
+    const toFetch = rich.map(e => e.name).filter(n => !fetchedRef.current.has(n.toLowerCase()));
+    if (!toFetch.length) return;
+    toFetch.forEach(n => fetchedRef.current.add(n.toLowerCase()));
+    let cancelled = false;
+    const fetchOne = async (name: string) => {
+      try {
+        const cached = AVATAR_CACHE.get(name.toLowerCase());
+        if (cached !== undefined) return { name, avatar: cached };
+        const res = await fetch(KICK_CH(name));
+        if (!res.ok) return null;
+        const json = await res.json();
+        const d = json?.data || json;
+        const avatar = d?.user?.profile_pic || '';
+        AVATAR_CACHE.set(name.toLowerCase(), avatar);
+        return { name, avatar };
+      } catch { return null; }
+    };
+    (async () => {
+      for (let i = 0; i < toFetch.length; i += 4) {
+        const batch = await Promise.all(toFetch.slice(i, i + 4).map(fetchOne));
+        if (cancelled) return;
+        const next: Record<string, string> = {};
+        batch.forEach(b => { if (b) next[b.name] = b.avatar; });
+        setAvatars(prev => ({ ...prev, ...next }));
+      }
+    })();
+    return () => { cancelled = true; };
+  }, [rich]);
+
   const maxWatch = Math.max(1, ...rich.map(e => e.watchtime || 0));
   const totalWatch = rich.reduce((s, e) => s + (e.watchtime || 0), 0);
   const totalPoints = rich.reduce((s, e) => s + (e.points || 0), 0);
@@ -155,7 +194,9 @@ const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
                   return (
                     <div key={e.name} className="flex flex-col items-center w-[30%] max-w-[200px] animate-fade-in-up transition-transform duration-500 hover:-translate-y-1.5" style={{ animationDelay: `${i * 100}ms` }}>
                       <span className={`relative rounded-full p-[2.5px] block transition-transform duration-500 hover:scale-110 ${rank === 1 ? 'w-16 h-16 sm:w-20 sm:h-20' : 'w-12 h-12 sm:w-16 sm:h-16'}`} style={{ background: ringOf(rank), boxShadow: rank === 1 ? '0 0 36px rgba(225,6,0,0.55)' : '0 8px 24px rgba(0,0,0,0.5)' }}>
-                        <span className="w-full h-full rounded-full bg-white/[0.06] backdrop-blur flex items-center justify-center font-black text-lg text-white/80">{e.name.charAt(0).toUpperCase()}</span>
+                        {avatars[e.name]
+                          ? <img src={avatars[e.name]} alt={e.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
+                          : <span className="w-full h-full rounded-full bg-white/[0.06] backdrop-blur flex items-center justify-center font-black text-lg text-white/80">{e.name.charAt(0).toUpperCase()}</span>}
                         <span className={`absolute -bottom-1.5 left-1/2 -translate-x-1/2 text-[10px] font-black px-2 py-0.5 rounded-lg border ${rank === 1 ? 'bg-[#E10600] text-white border-white/50' : 'bg-black/80 text-white/80 border-white/20'}`} dir="ltr">#{rank}</span>
                         {rank === 1 && (
                           <svg className="absolute -top-4 left-1/2 -translate-x-1/2 w-6 h-6 sm:w-7 sm:h-7 drop-shadow-[0_0_10px_rgba(225,6,0,0.9)] animate-float-soft" viewBox="0 0 24 24" fill="none">
@@ -185,8 +226,10 @@ const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
                     <div key={e.name} className="relative rounded-2xl p-2.5 sm:p-3 border border-transparent hover:border-[#E10600]/25 hover:bg-white/[0.04] hover:-translate-y-0.5 hover:shadow-[0_16px_38px_-14px_rgba(225,6,0,0.35)] transition-all duration-300 animate-fade-in-up" style={{ animationDelay: `${Math.min(idx * 60, 480)}ms` }}>
                       <div className="flex items-center gap-2 sm:gap-3 min-w-0">
                         <span className="w-8 h-8 rounded-xl bg-white/[0.04] border border-white/10 flex items-center justify-center text-[11px] font-black text-white/40 shrink-0" dir="ltr">{rank < 10 ? `0${rank}` : rank}</span>
-                        <span className="w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.06] border border-white/10 flex items-center justify-center text-sm font-black text-white/70 shrink-0">
-                          {e.name.charAt(0).toUpperCase()}
+                        <span className="relative w-10 h-10 sm:w-11 sm:h-11 rounded-full bg-white/[0.06] border border-white/10 shrink-0 block overflow-hidden">
+                          {avatars[e.name]
+                            ? <img src={avatars[e.name]} alt={e.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
+                            : <span className="w-full h-full rounded-full flex items-center justify-center text-sm font-black text-white/70">{e.name.charAt(0).toUpperCase()}</span>}
                         </span>
                         <div className="flex-1 min-w-0">
                           <p className="text-[13px] sm:text-sm font-black text-white/90 truncate" dir="auto">{e.name}</p>
