@@ -10,7 +10,7 @@ import { VodTheater, TheaterItem } from './components/VodTheater';
 // Heavy below-fold / on-demand chunks — split out of the first paint
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
 const ArchiveSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.ArchiveSection })));
-const StaffSection = lazy(() => import('./components/StaffSection').then(m => ({ default: m.StaffSection })));
+const ModeratorsSection = lazy(() => import('./components/ModeratorsSection').then(m => ({ default: m.default })));
 const StoryPage = lazy(() => import('./components/StoryPage').then(m => ({ default: m.StoryPage })));
 
 // --- Constants (OFLAG) ---
@@ -107,7 +107,7 @@ const TRANSLATIONS = {
         communityTitle: 'مقر المجتمع', supportTitle: 'دعم القناة', supportSub: 'دعمك يخلي قلعة القرمز أسطورية وتستمر.',
         honorTitle: 'لوحة الشرف', honorSub: 'كبار الداعمين عبر كل البثوث.',
         archiveTitle: 'الأرشيف', archiveSub: 'اللقطات والبثوث السابقة.',
-        modsTitle: 'المشرفين', modsSub: 'فرقة القلعة — عيون اوفلاق الساهرة.',
+        modsTitle: 'المشرفون', modsSub: 'فرقة القلعة — عيون اوفلاق الساهرة.',
         statsTitle: 'إحصائيات البث', statsSub: 'أرقام قلعة القرمز لحظة بلحظة.',
         tiersTitle: 'مستويات التنبيه الخاصة',
         theaterTitle: 'مسرح البث المباشر', viewers: 'مشاهد',
@@ -1114,9 +1114,9 @@ export default function App() {
                         </section>
 
                         {/* ===== MODERATORS ===== */}
-                        <section id="staff" className="pt-12 md:pt-16 scroll-mt-28">
-                            <Reveal><SectionHeading no="07" title={t.modsTitle} sub={t.modsSub} en="STAFF" /></Reveal>
-                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><StaffSection lang={lang} /></Suspense></Reveal>
+                        <section id="moderators" className="pt-12 md:pt-16 scroll-mt-28">
+                            <Reveal><SectionHeading no="07" title={t.modsTitle} sub={t.modsSub} en="MODERATORS" /></Reveal>
+                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ModeratorsSection lang={lang} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== FOOTER ===== */}
