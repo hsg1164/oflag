@@ -80,7 +80,7 @@ interface XLive {
 const X_FALLBACK: XLive = {
    name: 'oFLaG',
    handle: 'oFLaGx',
-   bio: 'Streamer and Content Creator for @level_one — The Goat of Kick',
+   bio: 'Streamer and Content Creator for @level_one — King of Kick',
    location: '@Level_one',
    followers: 26700,
    following: 244,
