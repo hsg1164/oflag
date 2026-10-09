@@ -57,20 +57,62 @@ async function fetchJson(url: string, timeoutMs = 10000): Promise<any> {
   }
 }
 
-// Layer 1: our server proxy (no CORS issues) → Layer 2: direct FixTweet → Layer 3: static fallback
-async function fetchMod(handle: string): Promise<ModProfile | null> {
-  const target = `https://api.fxtwitter.com/${handle}`;
-  let user: any = null;
+// ---- Layer 0 (instant): Kick channel base — fast & reliable via own proxy ----
+async function fetchKickBase(entry: RosterEntry, timeoutMs = 8000): Promise<ModProfile | null> {
+  const url = `https://kick.com/api/v2/channels/${entry.kick.toLowerCase()}`;
+  let d: any = null;
   try {
-    const via = await fetchJson('/api/kick?endpoint=' + encodeURIComponent(target));
-    user = via?.user || null;
-  } catch { /* fall through to direct */ }
-  if (!user) {
+    const via = await fetchJson('/api/kick?endpoint=' + encodeURIComponent(url), timeoutMs);
+    d = via?.data || via;
+  } catch { /* try direct */ }
+  if (!d || (!d.user && d.followers_count === undefined)) {
     try {
-      const direct = await fetchJson(target);
-      user = direct?.user || null;
-    } catch { /* fall through to null */ }
+      const direct = await fetchJson(url, 7000);
+      d = direct?.data || direct;
+    } catch { return null; }
   }
+  if (!d || (!d.user && d.followers_count === undefined)) return null;
+  const user = d.user || {};
+  const bannerRaw: any = d.banner_image ?? d.banner ?? null;
+  const banner = typeof bannerRaw === 'string'
+    ? bannerRaw
+    : (bannerRaw?.url || (Array.isArray(bannerRaw?.responsive) && bannerRaw.responsive.length ? bannerRaw.responsive[bannerRaw.responsive.length - 1] : '') || '');
+  return {
+    name: user.username || d.slug || entry.kick,
+    handle: entry.x,
+    avatar: user.profile_pic || '',
+    banner,
+    bio: d.channel_description ?? d.description ?? user.bio ?? '',
+    followers: typeof d.followers_count === 'number' ? d.followers_count : null,
+    tweets: null,
+    live: true,
+  };
+}
+
+// first non-null settler wins (proxy vs direct raced in parallel)
+function firstNonNull<T>(promises: Promise<T | null>[]): Promise<T | null> {
+  return new Promise((resolve) => {
+    let pending = promises.length;
+    if (!pending) { resolve(null); return; }
+    promises.forEach((p) =>
+      p.then((v) => {
+        if (v != null) resolve(v);
+        else if (--pending === 0) resolve(null);
+      }).catch(() => {
+        if (--pending === 0) resolve(null);
+      })
+    );
+  });
+}
+
+// ---- Layer 1 (enrichment): X via FixTweet — proxy + direct raced, X wins on arrival ----
+async function fetchXMod(handle: string, timeoutMs = 9000): Promise<ModProfile | null> {
+  const target = `https://api.fxtwitter.com/${handle}`;
+  const viaP = fetchJson('/api/kick?endpoint=' + encodeURIComponent(target), timeoutMs)
+    .then((r) => r?.user || null).catch(() => null);
+  const directP = fetchJson(target, timeoutMs)
+    .then((r) => r?.user || null).catch(() => null);
+  const user = await firstNonNull([viaP, directP]);
   if (!user) return null;
   const avatarRaw: string = user.avatar_url || '';
   const bannerRaw: string = user.banner_url || '';
@@ -155,6 +197,27 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
 
   useEffect(() => {
     let cancelled = false;
+    const xLive = new Set<string>();
+    const merged: Record<string, ModProfile> = { ...(readCache()?.data || {}) };
+    const persist = () => {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: merged }));
+      } catch { /* storage full — ignore */ }
+    };
+    // Kick base fills instantly; never downgrades an X-enriched card
+    const applyKick = (p: ModProfile) => {
+      if (cancelled || xLive.has(p.handle.toLowerCase())) return;
+      merged[p.handle.toLowerCase()] = p;
+      setProfiles({ ...merged });
+    };
+    // X overlay wins whenever it lands
+    const applyX = (p: ModProfile) => {
+      if (cancelled) return;
+      xLive.add(p.handle.toLowerCase());
+      merged[p.handle.toLowerCase()] = p;
+      setProfiles({ ...merged });
+      persist();
+    };
     const load = async (useCacheFirst = true) => {
       try {
         const cached = readCache();
@@ -164,31 +227,19 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
             setProfiles(cached!.data);
             setLoading(false);
           }
-          return;
+          return; // fresh cache — zero requests, instant paint
         }
         if (useCacheFirst) setLoading(true);
-        const next: Record<string, ModProfile> = {};
-        for (let i = 0; i < ROSTER.length; i += 3) {
-          if (cancelled) return;
-          const batch = await Promise.all(
-            ROSTER.slice(i, i + 3).map(async (m) => {
-              try {
-                return await fetchMod(m.x);
-              } catch {
-                return null;
-              }
-            })
-          );
-          if (cancelled) return;
-          batch.forEach((p) => {
-            if (p) next[p.handle.toLowerCase()] = p;
-          });
-          setProfiles((prev) => ({ ...prev, ...next }));
-        }
+        // ALL 11 in parallel — each card paints the moment its own data lands
+        const kickJobs = ROSTER.map((m) =>
+          fetchKickBase(m).then((p) => { if (p) applyKick(p); }).catch(() => {})
+        );
+        const xJobs = ROSTER.map((m) =>
+          fetchXMod(m.x).then((p) => { if (p) applyX(p); }).catch(() => {})
+        );
+        await Promise.allSettled([...kickJobs, ...xJobs]);
         if (!cancelled) {
-          try {
-            localStorage.setItem(CACHE_KEY, JSON.stringify({ at: Date.now(), data: { ...(readCache()?.data || {}), ...next } }));
-          } catch { /* storage full — ignore */ }
+          persist();
           setLoading(false);
         }
       } catch {
