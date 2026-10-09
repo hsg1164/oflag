@@ -343,7 +343,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                       @{bossP.handle}
                     </span>
                   </div>
-                  <p className="text-[9px] sm:text-[10px] font-bold text-[#FF8A8A]/70 tracking-[0.12em] mt-1 sm:mt-1.5 truncate" dir="ltr">
+                  <p className="text-[9px] sm:text-[10px] font-bold text-[#FF8A8A]/70 tracking-[0.12em] mt-1 sm:mt-1.5 truncate text-right" dir="ltr">
                     KICK: {boss.kick}
                   </p>
                 </div>
