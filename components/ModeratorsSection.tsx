@@ -124,6 +124,30 @@ const ShieldIcon = ({ className }: { className?: string }) => (
   </svg>
 );
 
+/* ---------- image-safe primitives (broken URLs degrade gracefully) ---------- */
+const SafeAvatar: React.FC<{ src: string; name: string; handle: string; big?: boolean }> = ({ src, name, handle, big }) => {
+  const [ok, setOk] = useState(true);
+  useEffect(() => { setOk(true); }, [src]);
+  if (!src || !ok) {
+    return (
+      <span className={`w-full h-full rounded-full bg-white/[0.06] flex items-center justify-center font-black text-white/70 ${big ? 'text-2xl' : 'text-lg'}`}>
+        {handle.charAt(0).toUpperCase()}
+      </span>
+    );
+  }
+  return <img src={src} alt={name} loading="lazy" onError={() => setOk(false)} className="w-full h-full rounded-full object-cover bg-black" />;
+};
+
+const SafeBanner: React.FC<{ src: string; hoverFx?: boolean }> = ({ src, hoverFx }) => {
+  const [ok, setOk] = useState(true);
+  useEffect(() => { setOk(true); }, [src]);
+  if (!src || !ok) return <div className="absolute inset-0 bg-gradient-to-tr from-[#E10600]/30 via-transparent to-[#FF2233]/20" />;
+  return (
+    <img src={src} alt="" loading="lazy" onError={() => setOk(false)}
+      className={`absolute inset-0 w-full h-full object-cover ${hoverFx ? 'opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500' : ''}`} />
+  );
+};
+
 /* ---------- section ---------- */
 const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
   const [profiles, setProfiles] = useState<Record<string, ModProfile>>(() => readCache()?.data || {});
@@ -250,7 +274,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
             <div className="relative rounded-[26.5px] bg-[#0d0606] overflow-hidden">
               <div className="relative h-40 sm:h-52 md:h-60 overflow-hidden bg-black shrink-0">
                 {bossP.banner ? (
-                  <img src={bossP.banner} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
+                  <SafeBanner src={bossP.banner} />
                 ) : (
                   <div className="absolute inset-0 bg-gradient-to-tr from-[#E10600]/30 via-transparent to-[#FF2233]/20" />
                 )}
@@ -270,13 +294,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                   <CrownIcon className="absolute -top-5 left-1/2 -translate-x-1/2 w-7 h-7 text-[#FF4D5A] drop-shadow-[0_0_10px_rgba(225,6,0,0.9)] animate-float-soft" />
                   <span className="relative rounded-full p-[3px] w-20 h-20 sm:w-24 sm:h-24 block"
                     style={{ background: 'conic-gradient(from 200deg,#FFCFCF,#E10600,#ffffff,#7A0A0A,#FFCFCF)', boxShadow: '0 0 44px rgba(225,6,0,0.55)' }}>
-                    {bossP.avatar ? (
-                      <img src={bossP.avatar} alt={bossP.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
-                    ) : (
-                      <span className="w-full h-full rounded-full bg-white/[0.06] flex items-center justify-center font-black text-2xl text-white/70">
-                        {bossP.handle.charAt(0).toUpperCase()}
-                      </span>
-                    )}
+                    <SafeAvatar src={bossP.avatar} name={bossP.name} handle={bossP.handle} big />
                     {bossP.live && <span className="absolute bottom-1 end-1 w-4 h-4 rounded-full bg-[#53FC18] border-[3px] border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
                   </span>
                 </span>
@@ -318,7 +336,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                   className="group relative rounded-[22px] border border-white/10 bg-white/[0.03] backdrop-blur-xl overflow-hidden hover:border-[#E10600]/50 hover:-translate-y-1 hover:shadow-[0_24px_60px_-16px_rgba(225,6,0,0.35)] transition-all duration-300 animate-fade-in-up">
                   <div className="relative h-20 sm:h-24 overflow-hidden bg-black">
                     {p.banner ? (
-                      <img src={p.banner} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover opacity-80 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                      <SafeBanner src={p.banner} hoverFx />
                     ) : (
                       <div className="absolute inset-0 bg-gradient-to-tr from-[#E10600]/25 via-transparent to-[#FF2233]/15" />
                     )}
@@ -334,13 +352,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                   <div className="relative px-4 pb-3 -mt-7 flex items-end gap-3">
                     <span className="relative rounded-full p-[2px] w-14 h-14 shrink-0 block"
                       style={{ background: 'linear-gradient(160deg,#FF8A8A,#E10600 55%,#4A0200)' }}>
-                      {p.avatar ? (
-                        <img src={p.avatar} alt={p.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
-                      ) : (
-                        <span className="w-full h-full rounded-full bg-white/[0.06] flex items-center justify-center font-black text-lg text-white/70">
-                          {p.handle.charAt(0).toUpperCase()}
-                        </span>
-                      )}
+                      <SafeAvatar src={p.avatar} name={p.name} handle={p.handle} />
                       {p.live && <span className="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full bg-[#53FC18] border-2 border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
                     </span>
                     <div className="min-w-0 flex-1 pb-0.5">
