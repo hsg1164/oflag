@@ -585,7 +585,7 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
                   {clips.map((clip, i) => (
                     <div key={clip.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 90}ms` }}>
                       <a
-                        href={`https://kick.com/oflag?clip=${clip.id}`}
+                        href={`https://kick.com/oflag/clips/${clip.id}`}
                         target="_blank"
                         rel="noreferrer"
                         className="group relative block aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black transition-all duration-500 hover:border-[#E10600]/60 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_-16px_rgba(225,6,0,0.45)]"
@@ -663,8 +663,9 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
               videos.length > 0 ? (
                 <div className="space-y-2.5 mt-4">
                   {videos.map((video, i) => {
-                    // Kick UUID is usually at root or nested in video.video for V2
-                    const videoUUID = video.uuid || video.video?.uuid || video.id;
+                    // Kick VOD pages need the video UUID (numeric ids land on the wrong page)
+                    const vv: any = video as any;
+                    const videoUUID = vv.uuid || vv.video?.uuid || vv.id;
                     const dur = (video as any).duration || 0;
                     return (
                       <div key={video.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 100}ms` }}>

@@ -295,14 +295,27 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
     const peak = Number(data.viewer_count ?? 0);
     const durH = data.duration > 1000000 ? data.duration / 3600000 : (Number(data.duration) || 0) / 3600;
     const vph = durH > 0.05 ? Math.round(views / durH) : views;
-    const vodUrl = `https://kick.com/${CHANNEL_SLUG}/videos/${data.id}`;
+    // Kick VOD pages are addressed by the video UUID (numeric ids land on the wrong page)
+    const vodUuidOf = (v: any) => v?.uuid || v?.video?.uuid || v?.id;
+    const vodUrl = `https://kick.com/${CHANNEL_SLUG}/videos/${vodUuidOf(data)}`;
     const isSubOnly = data.video?.status === 'subscriber_only' || data.video?.is_private === true;
     const fullDate = (() => { try { return new Date(data.created_at).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', { day: 'numeric', month: 'short', year: 'numeric' }); } catch { return ''; } })();
     const sessions = [data, ...past].slice(0, 4);
     const maxV = Math.max(1, ...sessions.map((s: any) => Number(s.views ?? s.video?.views ?? 0)));
     const compact = (v: number) => v >= 1000 ? `${(v / 1000).toFixed(1)}K` : `${v}`;
-    const vodUrlOf = (v: any) => `https://kick.com/${CHANNEL_SLUG}/videos/${v.id}`;
-    const catTags: string[] = [...new Set((data.categories || []).flatMap((c: any) => c.tags || []))].slice(0, 4) as string[];
+    const vodUrlOf = (v: any) => `https://kick.com/${CHANNEL_SLUG}/videos/${vodUuidOf(v)}`;
+    // Categories across the last sessions combined — every game played, not just the latest one
+    const allSessions = [data, ...past].filter(Boolean);
+    const allCats: any[] = [];
+    allSessions.forEach((s: any) => {
+        const raw = s?.categories;
+        const arr = Array.isArray(raw) ? raw : raw ? [raw] : [];
+        arr.forEach((c: any) => {
+            const inner = c?.category || c;
+            if (inner && !allCats.some(x => (x.id ?? x.slug ?? x.name) === (inner.id ?? inner.slug ?? inner.name))) allCats.push(inner);
+        });
+    });
+    const catTags: string[] = [...new Set(allCats.flatMap((c: any) => c.tags || []))].slice(0, 6) as string[];
     const L = {
         views: lang === 'en' ? 'VIEWS' : 'المشاهدات',
         peak: lang === 'en' ? 'PEAK' : 'الذروة',
@@ -357,10 +370,11 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                     {compact(views)}
                                 </span>
                             </a>
-                            <span className="mt-3 w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#FF8A8A] via-[#E10600] to-[#4A0200] text-[#060606] font-black text-sm shadow-[0_12px_30px_-10px_rgba(225,6,0,0.6)] active:scale-[0.98] transition-transform">
+                            <a href={vodUrl} target="_blank" rel="noopener noreferrer"
+                                className="mt-3 w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#FF8A8A] via-[#E10600] to-[#4A0200] text-white font-black text-sm shadow-[0_12px_30px_-10px_rgba(225,6,0,0.6)] hover:brightness-110 active:scale-[0.98] transition-all">
                                 {L.watch}
                                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
-                            </span>
+                            </a>
                         </div>
 
                         <div className="flex-1 min-w-0 w-full">
@@ -410,11 +424,11 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                 </div>
                             )}
 
-                            {data.categories?.length > 0 && (
+                            {allCats.length > 0 && (
                                 <div className="mt-6 animate-fade-in-up" style={{ animationDelay: '620ms' }}>
                                     <p className="kicker text-white/30 mb-3" dir="ltr">// {t.categoriesSpent}</p>
                                     <div className="flex flex-wrap gap-2">
-                                        {data.categories.map((cat: any, i: number) => {
+                                        {allCats.map((cat: any, i: number) => {
                                             const catName = cat.name || cat.category?.name || 'Just Chatting';
                                             const slug = cat.slug || cat.category?.slug || catName.toLowerCase().replace(/\s+/g, '-').replace(/[^\w-]/g, '');
                                             const catImg = cat.banner?.url || cat.banner?.responsive || cat.category?.banner?.url || cat.category?.banner?.responsive || cat.responsive_url || cat.thumbnail?.url || cat.category?.responsive_url || cat.category?.thumbnail?.url || `https://files.kick.com/categories/${slug}/fullsize.png`;
@@ -442,7 +456,7 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                             </div>
                             <div className="grid grid-cols-3 gap-2 md:gap-4">
                                 {clips.slice(0, 3).map((clip: any, i: number) => (
-                                    <a key={clip.id || i} href={`https://kick.com/${CHANNEL_SLUG}?clip=${clip.id}`} target="_blank" rel="noopener noreferrer"
+                                    <a key={clip.id || i} href={`https://kick.com/${CHANNEL_SLUG}/clips/${clip.id}`} target="_blank" rel="noopener noreferrer"
                                         className="group relative aspect-video rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black hover:border-[#E10600]/60 hover:-translate-y-1 transition-all duration-300">
                                         <img src={clip.thumbnail_url || clip.thumbnail?.url || PC_BACKGROUND} alt={clip.title} loading="lazy"
                                             className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
