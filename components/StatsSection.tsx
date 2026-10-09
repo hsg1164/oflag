@@ -537,7 +537,7 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
             new Date(b.created_at).getTime() - new Date(a.created_at).getTime()
         );
 
-        setClips(sortedClips.slice(0, 4));
+        setClips(sortedClips.slice(0, 6));
     }).catch(() => setClips([]));
 
     // جلب الفيديوهات
@@ -580,7 +580,8 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
 
             {clips ? (
               clips.length > 0 ? (
-                <div className="grid grid-cols-2 gap-2.5 sm:gap-3 mt-4">
+                <div className="mt-4 max-h-[330px] lg:max-h-[420px] overflow-y-auto scrollbar-hide rounded-3xl">
+                <div className="grid grid-cols-2 gap-2.5 sm:gap-3">
                   {clips.map((clip, i) => (
                     <div key={clip.id} className="animate-fade-in-up" style={{ animationDelay: `${i * 90}ms` }}>
                       <a
@@ -623,12 +624,13 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
                     </div>
                   ))}
                 </div>
+                </div>
               ) : (
                 <div className="mt-4 p-8 rounded-3xl bg-white/[0.03] border border-dashed border-white/10 text-center text-white/30 text-sm">{t.noData}</div>
               )
             ) : (
               <div className="grid grid-cols-2 gap-3 mt-4">
-                {[1, 2, 3, 4].map(i => <Skeleton key={i} className="aspect-video w-full rounded-3xl" />)}
+                {[1, 2, 3, 4, 5, 6].map(i => <Skeleton key={i} className="aspect-video w-full rounded-3xl" />)}
               </div>
             )}
             </div>
