@@ -731,10 +731,10 @@ const SupportArena: React.FC<{ lang: Language; supporters: Supporter[] }> = ({ l
                 <div className="absolute -top-10 right-0 w-64 h-64 rounded-full bg-[#E10600]/15 blur-[90px] animate-aurora pointer-events-none" aria-hidden="true" />
                 <div className="absolute -bottom-10 left-0 w-72 h-72 rounded-full bg-[#FF2233]/20 blur-[100px] animate-aurora pointer-events-none" style={{ animationDelay: '-7s' }} aria-hidden="true" />
                 <div className="relative grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-5" dir="rtl">
-                    <DonateGate lang={lang} title="STREAMLABS" url="https://streamlabs.com/oflag1" color="#E10600" markImg="/oflag-logo.webp"
+                    <DonateGate lang={lang} title="STREAMLABS" url="https://streamlabs.com/oflag1" color="#E10600" markImg="/streamlabs-mark.png"
                         label={lang === 'en' ? 'STREAMLABS' : 'ستريم لابس'} secure={lang === 'en' ? 'SECURE • INSTANT ALERT' : 'آمن • تنبيه فوري'} cta={lang === 'en' ? 'Donate via Streamlabs' : 'ادعم عبر ستريم لابس'}
                         sub={lang === 'en' ? 'Global cards • instant on-screen alert' : 'بطاقات عالمية • تنبيه فوري على الشاشة'} />
-                    <DonateGate lang={lang} title="DOKAN" url="https://tip.dokan.sa/oflag1" color="#FF2233" color2="#E10600" markImg="/oflag-logo.webp"
+                    <DonateGate lang={lang} title="DOKAN" url="https://tip.dokan.sa/oflag1" color="#FF2233" color2="#E10600" markImg="/dokan-mark.png"
                         label={lang === 'en' ? 'DOKAN • SEND TIP' : 'دكان • تيب'}
                         secure={lang === 'en' ? 'SECURE • MADA & APPLE PAY' : 'آمن • مدى وآبل باي'} cta={lang === 'en' ? 'Donate via Dokan' : 'ادعم عبر دكان'}
                         sub={lang === 'en' ? 'Mada • Apple Pay • instant vibe' : 'مدى • آبل باي • تنبيه يهز الشات'} />
