@@ -10,6 +10,7 @@ import { VodTheater, TheaterItem } from './components/VodTheater';
 // Heavy below-fold / on-demand chunks — split out of the first paint
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
 const ArchiveSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.ArchiveSection })));
+const StaffSection = lazy(() => import('./components/StaffSection').then(m => ({ default: m.StaffSection })));
 const StoryPage = lazy(() => import('./components/StoryPage').then(m => ({ default: m.StoryPage })));
 
 // --- Constants (OFLAG) ---
@@ -79,6 +80,7 @@ const TRANSLATIONS = {
         communityTitle: 'Community HQ', supportTitle: 'Support the Channel', supportSub: 'Your support keeps the blood fortress legendary.',
         honorTitle: 'Hall of Fame', honorSub: 'Top supporters across every stream.',
         archiveTitle: 'Archive', archiveSub: 'Clips and past streams.',
+        modsTitle: 'Moderators', modsSub: 'The fortress crew — keeping the chat legendary.',
         statsTitle: 'Stream Stats', statsSub: 'Live numbers from the blood fortress.',
         tiersTitle: 'Special alert tiers',
         theaterTitle: 'Live Theater', viewers: 'watching',
@@ -105,6 +107,7 @@ const TRANSLATIONS = {
         communityTitle: 'مقر المجتمع', supportTitle: 'دعم القناة', supportSub: 'دعمك يخلي قلعة القرمز أسطورية وتستمر.',
         honorTitle: 'لوحة الشرف', honorSub: 'كبار الداعمين عبر كل البثوث.',
         archiveTitle: 'الأرشيف', archiveSub: 'اللقطات والبثوث السابقة.',
+        modsTitle: 'المشرفين', modsSub: 'فرقة القلعة — عيون اوفلاق الساهرة.',
         statsTitle: 'إحصائيات البث', statsSub: 'أرقام قلعة القرمز لحظة بلحظة.',
         tiersTitle: 'مستويات التنبيه الخاصة',
         theaterTitle: 'مسرح البث المباشر', viewers: 'مشاهد',
@@ -1108,6 +1111,12 @@ export default function App() {
                         <section id="archive" className="pt-12 md:pt-16 scroll-mt-28">
                             <Reveal><SectionHeading no="06" title={t.archiveTitle} sub={t.archiveSub} en="ARCHIVE" /></Reveal>
                             <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ArchiveSection lang={lang} onPlayVod={openVod} onPlayClip={openClip} /></Suspense></Reveal>
+                        </section>
+
+                        {/* ===== MODERATORS ===== */}
+                        <section id="staff" className="pt-12 md:pt-16 scroll-mt-28">
+                            <Reveal><SectionHeading no="07" title={t.modsTitle} sub={t.modsSub} en="STAFF" /></Reveal>
+                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><StaffSection lang={lang} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== FOOTER ===== */}
