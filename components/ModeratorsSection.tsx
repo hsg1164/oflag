@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { XIcon } from './Icons';
 import type { Language } from '../types';
 
 interface RosterEntry {
   x: string;
+  kick?: string;
   boss?: boolean;
 }
 
@@ -97,7 +97,19 @@ function readCache(): { at: number; data: Record<string, ModProfile> } | null {
   }
 }
 
-/* ---------- local icons (crimson set) ---------- */
+/* ---------- local SVG icons (no external libs) ---------- */
+const XIconSmall = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-5.214-6.817L4.99 21.75H1.68l7.73-8.835L1.254 2.25H8.08l4.713 6.231zm-1.161 17.52h1.833L7.084 4.126H5.117z" />
+  </svg>
+);
+
+const KickIconSmall = ({ className }: { className?: string }) => (
+  <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
+    <path d="M3 3h4.5v6.9l6-6.9H19l-7.5 8.4L20 21h-5.4l-5.1-6.6V21H3V3z" />
+  </svg>
+);
+
 const CrownIcon = ({ className }: { className?: string }) => (
   <svg className={className} viewBox="0 0 24 24" fill="currentColor" aria-hidden="true">
     <path d="M2.5 8.5 6.5 12l5.5-7 5.5 7 4-3.5L20 18H4L2.5 8.5z" />
@@ -124,6 +136,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
     followers: isAr ? 'متابع' : 'Followers',
     posts: isAr ? 'منشور' : 'Posts',
     follow: isAr ? 'تابع' : 'Follow',
+    viewKick: 'Kick',
   };
 
   useEffect(() => {
@@ -168,9 +181,12 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
     };
   }, []);
 
-  const get = (x: string): ModProfile =>
-    profiles[x.toLowerCase()] || {
-      name: `@${x}`,
+  const get = (x: string): ModProfile => {
+    const p = profiles[x.toLowerCase()];
+    if (p) return p;
+    const r = ROSTER.find((m) => m.x.toLowerCase() === x.toLowerCase());
+    return {
+      name: r?.kick || `@${x}`,
       handle: x,
       avatar: '',
       banner: '',
@@ -179,23 +195,38 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
       tweets: null,
       live: false,
     };
+  };
 
   const bossEntry = ROSTER.find((m) => m.boss) || ROSTER[0];
   const restEntries = ROSTER.filter((m) => m !== bossEntry);
   const bossP = get(bossEntry.x);
 
-  const Avatar: React.FC<{ p: ModProfile; size: string; ring: string }> = ({ p, size, ring }) => (
-    <span className={`relative rounded-full p-[3px] ${size} shrink-0`} style={{ background: ring }}>
-      {p.avatar ? (
-        <img src={p.avatar} alt={p.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
-      ) : (
-        <span className="w-full h-full rounded-full bg-white/[0.06] flex items-center justify-center font-black text-xl text-white/70">
-          {p.handle.charAt(0).toUpperCase()}
-        </span>
-      )}
-      {p.live && <span className="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full bg-[#53FC18] border-2 border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
-    </span>
+  const FollowBtn: React.FC<{ handle: string; label?: string; big?: boolean }> = ({ handle, label, big }) => (
+    <a href={`https://x.com/${handle}`} target="_blank" rel="noopener noreferrer"
+      className={`inline-flex items-center justify-center gap-1.5 font-black transition-colors ${
+        big
+          ? 'btn-arena px-7 py-3 rounded-2xl bg-white text-black text-sm hover:bg-[#E10600] hover:text-white shadow-[0_14px_36px_-10px_rgba(255,255,255,0.35)]'
+          : 'flex-1 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-white/80 text-[12px] hover:bg-white hover:text-black'
+      }`}>
+      <XIconSmall className="w-3.5 h-3.5" />
+      {label || t.follow}
+    </a>
   );
+
+  const KickBtn: React.FC<{ kick?: string; square?: boolean }> = ({ kick, square }) => {
+    if (!kick) return null;
+    return (
+      <a href={`https://kick.com/${kick}`} target="_blank" rel="noopener noreferrer" aria-label={`Kick ${kick}`}
+        className={`inline-flex items-center justify-center gap-1.5 font-black transition-colors ${
+          square
+            ? 'w-10 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-white/80 text-[12px] hover:bg-[#53FC18] hover:text-black hover:border-[#53FC18]'
+            : 'btn-arena px-6 py-3 rounded-2xl bg-white/[0.05] border border-white/15 text-white text-sm hover:bg-[#53FC18] hover:text-black hover:border-[#53FC18]'
+        }`}>
+        <KickIconSmall className="w-4 h-4" />
+        {!square && t.viewKick}
+      </a>
+    );
+  };
 
   return (
     <div className="w-full animate-fade-in-up">
@@ -221,7 +252,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                 <div className="absolute inset-x-0 bottom-0 h-3/4 bg-gradient-to-t from-[#0d0606] via-[#0d0606]/60 to-transparent" />
                 <a href={`https://x.com/${bossP.handle}`} target="_blank" rel="noopener noreferrer" aria-label="X profile"
                   className="absolute top-3 end-3 w-9 h-9 rounded-xl bg-black/55 backdrop-blur border border-white/15 text-white/85 hover:text-white hover:border-[#E10600]/60 flex items-center justify-center transition-colors">
-                  <XIcon className="w-4 h-4" />
+                  <XIconSmall className="w-4 h-4" />
                 </a>
                 <span className="absolute top-3 start-3 inline-flex items-center gap-1.5 px-3 py-1.5 rounded-full bg-[#E10600] text-white text-[10px] font-black tracking-[0.18em] shadow-[0_0_22px_rgba(225,6,0,0.7)]" dir="ltr">
                   <CrownIcon className="w-3.5 h-3.5" /> BOSS
@@ -230,14 +261,22 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
               <div className="relative px-5 sm:px-7 pb-6 -mt-10 sm:-mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
                 <span className="relative shrink-0 mx-auto sm:mx-0">
                   <CrownIcon className="absolute -top-5 left-1/2 -translate-x-1/2 w-7 h-7 text-[#FF4D5A] drop-shadow-[0_0_10px_rgba(225,6,0,0.9)] animate-float-soft" />
-                  <Avatar p={bossP} size="w-20 h-20 sm:w-24 sm:h-24"
-                    ring="conic-gradient(from 200deg,#FFCFCF,#E10600,#ffffff,#7A0A0A,#FFCFCF)" />
+                  <span className="relative rounded-full p-[3px] w-20 h-20 sm:w-24 sm:h-24 block"
+                    style={{ background: 'conic-gradient(from 200deg,#FFCFCF,#E10600,#ffffff,#7A0A0A,#FFCFCF)', boxShadow: '0 0 44px rgba(225,6,0,0.55)' }}>
+                    {bossP.avatar ? (
+                      <img src={bossP.avatar} alt={bossP.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
+                    ) : (
+                      <span className="w-full h-full rounded-full bg-white/[0.06] flex items-center justify-center font-black text-2xl text-white/70">
+                        {bossP.handle.charAt(0).toUpperCase()}
+                      </span>
+                    )}
+                    {bossP.live && <span className="absolute bottom-1 end-1 w-4 h-4 rounded-full bg-[#53FC18] border-[3px] border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
+                  </span>
                 </span>
                 <div className="min-w-0 flex-1 text-center sm:text-start">
-                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none flex items-center justify-center sm:justify-start gap-2" dir="auto">
-                    <span className="truncate">{bossP.name}</span>
-                  </h3>
-                  <p className="text-[12px] font-bold text-[#FF8A8A] mt-1.5" dir="ltr">@{bossP.handle}</p>
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none truncate" dir="ltr">{bossP.name}</h3>
+                  <p className="text-[12px] font-bold text-[#53FC18] mt-1.5" dir="ltr">@{bossP.handle}</p>
+                  {bossEntry.kick && <p className="text-[10px] font-bold text-[#FF8A8A]/80 mt-0.5" dir="ltr">KICK: {bossEntry.kick}</p>}
                   <div className="mt-3 flex items-center justify-center sm:justify-start gap-2.5">
                     <span className="inline-flex flex-col items-center px-4 py-2 rounded-2xl bg-[#E10600]/10 border border-[#E10600]/30">
                       <span className="text-base sm:text-lg font-black text-[#FF8A8A]" dir="ltr">{compact(bossP.followers)}</span>
@@ -249,11 +288,10 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                     </span>
                   </div>
                 </div>
-                <a href={`https://x.com/${bossP.handle}`} target="_blank" rel="noopener noreferrer"
-                  className="btn-arena shrink-0 inline-flex items-center justify-center gap-2 px-7 py-3 rounded-2xl bg-white text-black font-black text-sm hover:bg-[#E10600] hover:text-white transition-colors shadow-[0_14px_36px_-10px_rgba(255,255,255,0.35)]">
-                  <XIcon className="w-4 h-4" />
-                  {t.follow} @{bossP.handle}
-                </a>
+                <div className="shrink-0 flex sm:flex-col items-center gap-2">
+                  <FollowBtn handle={bossP.handle} label={`${t.follow} @${bossP.handle}`} big />
+                  <KickBtn kick={bossEntry.kick} />
+                </div>
               </div>
               {bossP.bio && (
                 <p className="relative px-5 sm:px-7 pb-6 -mt-1 text-[13px] text-white/55 font-medium leading-relaxed text-center sm:text-start max-w-3xl" dir="auto">{bossP.bio}</p>
@@ -280,23 +318,32 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                     </span>
                     <a href={`https://x.com/${p.handle}`} target="_blank" rel="noopener noreferrer" aria-label="X profile"
                       className="absolute top-2.5 end-3 w-8 h-8 rounded-lg bg-black/55 backdrop-blur border border-white/15 text-white/80 hover:text-white hover:border-white/50 flex items-center justify-center transition-colors">
-                      <XIcon className="w-3.5 h-3.5" />
+                      <XIconSmall className="w-3.5 h-3.5" />
                     </a>
                   </div>
                   <div className="relative px-4 pb-4 -mt-7 flex items-end gap-3">
-                    <Avatar p={p} size="w-14 h-14" ring="linear-gradient(160deg,#FF8A8A,#E10600 55%,#4A0200)" />
+                    <span className="relative rounded-full p-[2px] w-14 h-14 shrink-0 block"
+                      style={{ background: 'linear-gradient(160deg,#FF8A8A,#E10600 55%,#4A0200)' }}>
+                      {p.avatar ? (
+                        <img src={p.avatar} alt={p.name} loading="lazy" className="w-full h-full rounded-full object-cover bg-black" />
+                      ) : (
+                        <span className="w-full h-full rounded-full bg-white/[0.06] flex items-center justify-center font-black text-lg text-white/70">
+                          {p.handle.charAt(0).toUpperCase()}
+                        </span>
+                      )}
+                      {p.live && <span className="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full bg-[#53FC18] border-2 border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
+                    </span>
                     <div className="min-w-0 flex-1 pb-0.5">
-                      <p className="font-black text-white truncate text-[14px]" dir="auto">{p.name}</p>
+                      <p className="font-black text-white truncate text-[14px]" dir="ltr">{p.name}</p>
                       <p className="text-[11px] text-white/40 font-bold truncate" dir="ltr">@{p.handle}</p>
+                      {entry.kick && <p className="text-[10px] font-bold text-[#FF8A8A]/80 truncate" dir="ltr">KICK: {entry.kick}</p>}
                     </div>
                     <span className="shrink-0 text-[11px] font-black text-white/60" dir="ltr">{compact(p.followers)}</span>
                   </div>
                   <p className="relative px-4 text-[11px] text-white/40 font-medium leading-relaxed line-clamp-2 min-h-[32px]" dir="auto">{p.bio || '---'}</p>
                   <div className="relative px-4 pb-4 pt-2.5 flex items-center gap-2">
-                    <a href={`https://x.com/${p.handle}`} target="_blank" rel="noopener noreferrer"
-                      className="flex-1 inline-flex items-center justify-center gap-1.5 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-white/80 text-[12px] font-black hover:bg-white hover:text-black transition-colors">
-                      <XIcon className="w-3.5 h-3.5" />{t.follow}
-                    </a>
+                    <FollowBtn handle={p.handle} />
+                    <KickBtn kick={entry.kick} square />
                     <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.14em] shrink-0">{t.followers}</span>
                   </div>
                   <span className="absolute bottom-0 start-0 h-[2px] w-0 group-hover:w-full bg-gradient-to-r from-[#FF8A8A] to-[#E10600] transition-all duration-500" />
