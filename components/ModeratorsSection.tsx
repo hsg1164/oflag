@@ -310,9 +310,9 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                 </div>
               </div>
 
-              {/* البايو تحت صف الهوية بمحاذاة البداية */}
+              {/* البايو تحت صف الهوية — يمين دائماً */}
               {bossP.bio ? (
-                <p className="text-[12px] sm:text-[13px] text-white/55 leading-relaxed mt-3.5 max-w-3xl line-clamp-2" dir="auto">
+                <p className="text-[12px] sm:text-[13px] text-white/55 leading-relaxed mt-3.5 max-w-3xl line-clamp-2 text-right" dir="auto">
                   {bossP.bio}
                 </p>
               ) : null}
