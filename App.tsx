@@ -5,6 +5,7 @@ import { StreamPlayer } from './components/StreamPlayer';
 import { SiteHeader } from './components/SiteHeader';
 import { ChatWidget } from './components/Chat';
 import { XWidget, YoutubeWidget } from './components/CommunityWidgets';
+import { VodTheater, TheaterItem } from './components/VodTheater';
 
 // Heavy below-fold / on-demand chunks — split out of the first paint
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
@@ -271,7 +272,7 @@ const CountUp: React.FC<{ value: number; duration?: number }> = ({ value, durati
 };
 
 // --- Last Session Report: MISSION DEBRIEF edition (rich Kick data) ---
-const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; past?: any[] }> = ({ lang, data, clips, past = [] }) => {
+const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; past?: any[]; onPlayVod?: (v: any) => void; onPlayClip?: (c: any) => void }> = ({ lang, data, clips, past = [], onPlayVod, onPlayClip }) => {
     if (!data && (!clips || clips.length === 0)) return null;
     const timeAgo = (date: string) => {
         if (!date) return '---';
@@ -355,8 +356,8 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                     {/* hero */}
                     <div className="flex flex-col lg:flex-row gap-6 md:gap-8 items-start">
                         <div className="[perspective:1200px] w-full lg:w-[380px] shrink-0 animate-fade-in-up" style={{ animationDelay: '80ms' }}>
-                            <a href={vodUrl} target="_blank" rel="noopener noreferrer"
-                                className="group relative block aspect-video rounded-2xl overflow-hidden border border-[#E10600]/30 bg-black shadow-[0_24px_60px_-16px_rgba(225,6,0,0.4)] [transform:rotateY(-7deg)_rotateX(2deg)] hover:[transform:rotateY(0deg)_rotateX(0deg)] transition-transform duration-700">
+                            <a href={vodUrl} target="_blank" rel="noopener noreferrer" onClick={onPlayVod ? (e) => { e.preventDefault(); onPlayVod(data); } : undefined}
+                                className="group relative block aspect-video rounded-2xl overflow-hidden border border-[#E10600]/30 bg-black shadow-[0_24px_60px_-16px_rgba(225,6,0,0.4)] [transform:rotateY(-7deg)_rotateX(2deg)] hover:[transform:rotateY(0deg)_rotateX(0deg)] transition-transform duration-700 cursor-pointer">
                                 <img src={thumbnail} alt="Last Session" loading="lazy" className="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105" />
                                 <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/10 to-transparent" />
                                 <span className="absolute top-3 start-3 text-[10px] font-black px-2.5 py-1 rounded-full bg-black/70 border border-white/15 text-white/80 backdrop-blur">VOD</span>
@@ -369,8 +370,8 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                     {compact(views)}
                                 </span>
                             </a>
-                            <a href={vodUrl} target="_blank" rel="noopener noreferrer"
-                                className="mt-3 w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#FF8A8A] via-[#E10600] to-[#4A0200] text-white font-black text-sm shadow-[0_12px_30px_-10px_rgba(225,6,0,0.6)] hover:brightness-110 active:scale-[0.98] transition-all">
+                            <a href={vodUrl} target="_blank" rel="noopener noreferrer" onClick={onPlayVod ? (e) => { e.preventDefault(); onPlayVod(data); } : undefined}
+                                className="mt-3 w-full min-h-[48px] flex items-center justify-center gap-2 rounded-2xl bg-gradient-to-b from-[#FF8A8A] via-[#E10600] to-[#4A0200] text-white font-black text-sm shadow-[0_12px_30px_-10px_rgba(225,6,0,0.6)] hover:brightness-110 active:scale-[0.98] transition-all cursor-pointer">
                                 {L.watch}
                                 <svg className="w-4 h-4 fill-current" viewBox="0 0 24 24"><path d="M8 5v14l11-7z" /></svg>
                             </a>
@@ -403,7 +404,7 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                                             const h = Math.max(10, Math.round((v / maxV) * 100));
                                             const cur = i === 0;
                                             return (
-                                                <a key={s.id || i} href={vodUrlOf(s)} target="_blank" rel="noopener noreferrer" title={s.session_title || s.title}
+                                                <a key={s.id || i} href={vodUrlOf(s)} target="_blank" rel="noopener noreferrer" onClick={onPlayVod ? (e) => { e.preventDefault(); onPlayVod(s); } : undefined} title={s.session_title || s.title}
                                                     className="flex-1 h-full flex flex-col items-center justify-end gap-1.5 group/bar min-w-0">
                                                     <span className={`text-[10px] sm:text-[11px] font-black ${cur ? 'text-[#FF8A8A]' : 'text-white/45'}`} dir="ltr">{compact(v)}</span>
                                                     <span className="tier-bar w-full max-w-[90px] rounded-t-lg border-x border-t relative overflow-hidden"
@@ -455,7 +456,7 @@ const LastSessionReport: React.FC<{ lang: Language; data: any; clips: any[]; pas
                             </div>
                             <div className="grid grid-cols-3 gap-2 md:gap-4">
                                 {clips.slice(0, 3).map((clip: any, i: number) => (
-                                    <a key={clip.id || i} href={`https://kick.com/${CHANNEL_SLUG}/clips/${clip.id}`} target="_blank" rel="noopener noreferrer"
+                                    <a key={clip.id || i} href={`https://kick.com/${CHANNEL_SLUG}/clips/${clip.id}`} target="_blank" rel="noopener noreferrer" onClick={onPlayClip ? (e) => { e.preventDefault(); onPlayClip(clip); } : undefined}
                                         className="group relative aspect-video rounded-xl md:rounded-2xl overflow-hidden border border-white/10 bg-black hover:border-[#E10600]/60 hover:-translate-y-1 transition-all duration-300">
                                         <img src={clip.thumbnail_url || clip.thumbnail?.url || PC_BACKGROUND} alt={clip.title} loading="lazy"
                                             className="w-full h-full object-cover opacity-70 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
@@ -763,6 +764,36 @@ export default function App() {
     const [lastSession, setLastSession] = useState<any>(null);
     const [pastSessions, setPastSessions] = useState<any[]>([]);
     const [clips, setClips] = useState<any[]>([]);
+    const [theater, setTheater] = useState<TheaterItem | null>(null);
+
+    /* In-site theater — VODs embed Kick, clips play natively (HLS) */
+    const openVod = useCallback((v: any) => {
+        if (!v) return;
+        const uuid = v?.uuid || v?.video?.uuid || v?.id;
+        const thumb = v?.thumbnail?.url || v?.thumbnail?.src || (typeof v?.thumbnail === 'string' ? v.thumbnail : '') || PC_BACKGROUND;
+        const subOnly = v?.video?.status === 'subscriber_only' || v?.video?.is_private === true;
+        setTheater({
+            kind: 'vod',
+            title: v?.session_title || v?.title || 'VOD',
+            embedUrl: `https://kick.com/${CHANNEL_SLUG}/videos/${uuid}`,
+            kickUrl: `https://kick.com/${CHANNEL_SLUG}/videos/${uuid}`,
+            poster: thumb, subOnly,
+            meta: v?.created_at ? String(v.created_at).slice(0, 10) : '',
+        });
+    }, []);
+    const openClip = useCallback((c: any) => {
+        if (!c) return;
+        const hls = c?.clip_url || c?.video_url;
+        if (!hls) { window.open(`https://kick.com/${CHANNEL_SLUG}/clips/${c?.id}`, '_blank'); return; }
+        setTheater({
+            kind: 'clip',
+            title: c?.title || 'Clip',
+            hls,
+            kickUrl: `https://kick.com/${CHANNEL_SLUG}/clips/${c?.id}`,
+            poster: c?.thumbnail_url || c?.thumbnail?.url,
+            meta: `${Number(c?.view_count || c?.views || 0).toLocaleString('en-US')} views`,
+        });
+    }, []);
 
     // Live social counters — dedicated 5-minute loop + instant cache paint (API-style)
     useEffect(() => {
@@ -1071,13 +1102,13 @@ export default function App() {
                         {/* ===== HONOR (gifters + last session when offline + chat legends) ===== */}
                         <section id="honor" className="pt-12 md:pt-16 scroll-mt-28">
                             <Reveal><SectionHeading no="05" title={t.honorTitle} sub={t.honorSub} en="HALL OF FAME" /></Reveal>
-                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><HonorSection lang={lang} report={!streamInfo.isLive ? (<div id="live" className="scroll-mt-28"><LastSessionReport lang={lang} data={lastSession} clips={clips} past={pastSessions} /></div>) : null} /></Suspense></Reveal>
+                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><HonorSection lang={lang} report={!streamInfo.isLive ? (<div id="live" className="scroll-mt-28"><LastSessionReport lang={lang} data={lastSession} clips={clips} past={pastSessions} onPlayVod={openVod} onPlayClip={openClip} /></div>) : null} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== ARCHIVE ===== */}
                         <section id="archive" className="pt-12 md:pt-16 scroll-mt-28">
                             <Reveal><SectionHeading no="06" title={t.archiveTitle} sub={t.archiveSub} en="ARCHIVE" /></Reveal>
-                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ArchiveSection lang={lang} /></Suspense></Reveal>
+                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ArchiveSection lang={lang} onPlayVod={openVod} onPlayClip={openClip} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== FOOTER ===== */}
@@ -1098,6 +1129,7 @@ export default function App() {
                             </div>
                         </footer>
                     </div>
+                    <VodTheater lang={lang} item={theater} onClose={() => setTheater(null)} />
                 </>
         </div>
     );

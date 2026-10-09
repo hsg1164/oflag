@@ -8,6 +8,8 @@ import { kickFetch } from '../utils/kickApi';
 interface StatsSectionProps {
   lang: Language;
   report?: React.ReactNode;
+  onPlayVod?: (v: any) => void;
+  onPlayClip?: (c: any) => void;
 }
 
 const FALLBACK_IMAGE = "/oflag-logo.webp";
@@ -512,7 +514,7 @@ export const HonorSection: React.FC<StatsSectionProps> = ({ lang, report }) => {
   );
 };
 
-export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
+export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang, onPlayVod, onPlayClip }) => {
   const [clips, setClips] = useState<Clip[] | null>(null);
   const [videos, setVideos] = useState<Video[] | null>(null);
 
@@ -588,6 +590,7 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
                         href={`https://kick.com/oflag/clips/${clip.id}`}
                         target="_blank"
                         rel="noreferrer"
+                        onClick={onPlayClip ? (e) => { e.preventDefault(); onPlayClip(clip); } : undefined}
                         className="group relative block aspect-video rounded-3xl overflow-hidden border border-white/10 bg-black transition-all duration-500 hover:border-[#E10600]/60 hover:-translate-y-1.5 hover:shadow-[0_24px_60px_-16px_rgba(225,6,0,0.45)]"
                       >
                         <img
@@ -673,6 +676,7 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang }) => {
                           href={`https://kick.com/oflag/videos/${videoUUID}`}
                           target="_blank"
                           rel="noopener noreferrer"
+                          onClick={onPlayVod ? (e) => { e.preventDefault(); onPlayVod(video); } : undefined}
                           className="group flex gap-3 p-2.5 rounded-3xl bg-black/40 border border-white/[0.07] hover:border-[#FFCFCF]/50 hover:bg-white/[0.05] hover:-translate-y-1 hover:shadow-[0_20px_50px_-16px_rgba(111,242,196,0.35)] active:scale-[0.99] transition-all duration-300 cursor-pointer"
                         >
                           <div className="relative w-32 sm:w-44 aspect-video rounded-2xl overflow-hidden shrink-0 bg-black border border-white/10 group-hover:border-white/25 transition-colors duration-300">
