@@ -7,16 +7,16 @@ interface RosterEntry {
   boss?: boolean;
 }
 
-// 11 OFLAG moderators — X handles (live data via FixTweet)
+// 11 OFLAG moderators — X handles live via FixTweet, Kick names matched from Botrix leaderboard
 const ROSTER: RosterEntry[] = [
-  { x: 'itsxAREEJ1', boss: true },
-  { x: 's7_moataz' },
+  { x: 'itsxAREEJ1', kick: 'xAREEJ1', boss: true },
+  { x: 's7_moataz', kick: 'M0ATAZ' },
   { x: 'iriliir_5' },
-  { x: 'i_fares_0i' },
+  { x: 'i_fares_0i', kick: 'oiFares' },
   { x: 'sa3bood911' },
-  { x: 'vghalaa1' },
-  { x: 'iey52' },
-  { x: '_aishilad' },
+  { x: 'vghalaa1', kick: 'vghala1' },
+  { x: 'iey52', kick: '2Yaseer' },
+  { x: '_aishilad', kick: 'AISHILAD' },
   { x: '_a7medo_' },
   { x: 's7le_a' },
   { x: '2nellyy' },
@@ -132,7 +132,6 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
 
   const t = {
     mod: isAr ? 'مشرف' : 'MOD',
-    boss: isAr ? 'القائد' : 'BOSS',
     followers: isAr ? 'متابع' : 'Followers',
     posts: isAr ? 'منشور' : 'Posts',
     follow: isAr ? 'تابع' : 'Follow',
@@ -206,7 +205,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
       className={`inline-flex items-center justify-center gap-1.5 font-black transition-colors ${
         big
           ? 'btn-arena px-7 py-3 rounded-2xl bg-white text-black text-sm hover:bg-[#E10600] hover:text-white shadow-[0_14px_36px_-10px_rgba(255,255,255,0.35)]'
-          : 'flex-1 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-white/80 text-[12px] hover:bg-white hover:text-black'
+          : 'px-5 h-10 rounded-xl bg-white/[0.06] border border-white/10 text-white/80 text-[12px] hover:bg-white hover:text-black'
       }`}>
       <XIconSmall className="w-3.5 h-3.5" />
       {label || t.follow}
@@ -228,6 +227,13 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
     );
   };
 
+  const StatBox: React.FC<{ value: string; label: string }> = ({ value, label }) => (
+    <span className="inline-flex flex-col items-center px-5 py-2.5 rounded-2xl bg-white/[0.04] border border-white/10 min-w-[76px]">
+      <span className="text-lg font-black text-[#FF8A8A]" dir="ltr">{value}</span>
+      <span className="text-[9px] font-bold text-white/40 mt-0.5">{label}</span>
+    </span>
+  );
+
   return (
     <div className="w-full animate-fade-in-up">
       <div className="relative rounded-[28px] border border-white/10 bg-white/[0.03] backdrop-blur-2xl overflow-hidden">
@@ -239,10 +245,10 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
             <div className="h-full w-1/3 rounded-full bg-gradient-to-r from-transparent via-[#E10600] to-transparent animate-pulse" />
           </div>
 
-          {/* ===== BOSS HERO ===== */}
+          {/* ===== BOSS HERO — avatar right, stats left, bio center, buttons ===== */}
           <div className="relative rounded-[28px] p-[1.5px] bg-gradient-to-b from-[#FF8A8A] via-[#E10600]/50 to-transparent shadow-[0_30px_90px_rgba(225,6,0,0.25)] mb-4 md:mb-6 overflow-hidden">
             <div className="relative rounded-[26.5px] bg-[#0d0606] overflow-hidden">
-              <div className="relative h-36 sm:h-48 md:h-56 overflow-hidden bg-black shrink-0">
+              <div className="relative h-40 sm:h-52 md:h-60 overflow-hidden bg-black shrink-0">
                 {bossP.banner ? (
                   <img src={bossP.banner} alt="" loading="lazy" className="absolute inset-0 w-full h-full object-cover" />
                 ) : (
@@ -258,8 +264,9 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                   <CrownIcon className="w-3.5 h-3.5" /> BOSS
                 </span>
               </div>
-              <div className="relative px-5 sm:px-7 pb-6 -mt-10 sm:-mt-12 flex flex-col sm:flex-row sm:items-end gap-4">
-                <span className="relative shrink-0 mx-auto sm:mx-0">
+              {/* identity row: avatar+name right … stats left */}
+              <div className="relative px-5 sm:px-7 -mt-10 sm:-mt-12 flex items-end gap-4">
+                <span className="relative shrink-0">
                   <CrownIcon className="absolute -top-5 left-1/2 -translate-x-1/2 w-7 h-7 text-[#FF4D5A] drop-shadow-[0_0_10px_rgba(225,6,0,0.9)] animate-float-soft" />
                   <span className="relative rounded-full p-[3px] w-20 h-20 sm:w-24 sm:h-24 block"
                     style={{ background: 'conic-gradient(from 200deg,#FFCFCF,#E10600,#ffffff,#7A0A0A,#FFCFCF)', boxShadow: '0 0 44px rgba(225,6,0,0.55)' }}>
@@ -273,29 +280,32 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                     {bossP.live && <span className="absolute bottom-1 end-1 w-4 h-4 rounded-full bg-[#53FC18] border-[3px] border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
                   </span>
                 </span>
-                <div className="min-w-0 flex-1 text-center sm:text-start">
-                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none truncate" dir="ltr">{bossP.name}</h3>
-                  <p className="text-[12px] font-bold text-[#53FC18] mt-1.5" dir="ltr">@{bossP.handle}</p>
-                  {bossEntry.kick && <p className="text-[10px] font-bold text-[#FF8A8A]/80 mt-0.5" dir="ltr">KICK: {bossEntry.kick}</p>}
-                  <div className="mt-3 flex items-center justify-center sm:justify-start gap-2.5">
-                    <span className="inline-flex flex-col items-center px-4 py-2 rounded-2xl bg-[#E10600]/10 border border-[#E10600]/30">
-                      <span className="text-base sm:text-lg font-black text-[#FF8A8A]" dir="ltr">{compact(bossP.followers)}</span>
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.18em]">{t.followers}</span>
+                <div className="min-w-0 flex-1 pb-1">
+                  <h3 className="text-xl sm:text-2xl font-black text-white tracking-tight leading-none flex items-center gap-2 flex-wrap" dir="ltr">
+                    <span className="truncate">{bossP.name}</span>
+                    <span className="inline-flex items-center gap-1 text-[10px] font-black px-2.5 py-1 rounded-full bg-[#53FC18]/15 border border-[#53FC18]/40 text-[#53FC18]">
+                      <span className="w-1.5 h-1.5 rounded-full bg-[#53FC18] animate-pulse" />@{bossP.handle}
                     </span>
-                    <span className="inline-flex flex-col items-center px-4 py-2 rounded-2xl bg-white/[0.04] border border-white/10">
-                      <span className="text-base sm:text-lg font-black text-white" dir="ltr">{compact(bossP.tweets)}</span>
-                      <span className="text-[9px] font-bold text-white/40 uppercase tracking-[0.18em]">{t.posts}</span>
-                    </span>
-                  </div>
+                  </h3>
+                  {bossEntry.kick && <p className="text-[11px] font-bold text-[#FF8A8A]/80 mt-1.5" dir="ltr">KICK: {bossEntry.kick}</p>}
                 </div>
-                <div className="shrink-0 flex sm:flex-col items-center gap-2">
-                  <FollowBtn handle={bossP.handle} label={`${t.follow} @${bossP.handle}`} big />
-                  <KickBtn kick={bossEntry.kick} />
+                <div className="hidden sm:flex items-center gap-2 shrink-0 pb-1">
+                  <StatBox value={compact(bossP.tweets)} label={t.posts} />
+                  <StatBox value={compact(bossP.followers)} label={t.followers} />
                 </div>
               </div>
+              {/* mobile stats */}
+              <div className="flex sm:hidden items-center justify-center gap-2 px-5 mt-3">
+                <StatBox value={compact(bossP.tweets)} label={t.posts} />
+                <StatBox value={compact(bossP.followers)} label={t.followers} />
+              </div>
               {bossP.bio && (
-                <p className="relative px-5 sm:px-7 pb-6 -mt-1 text-[13px] text-white/55 font-medium leading-relaxed text-center sm:text-start max-w-3xl" dir="auto">{bossP.bio}</p>
+                <p className="relative px-5 sm:px-7 mt-4 text-[13px] text-white/55 font-medium leading-relaxed text-center max-w-3xl mx-auto" dir="auto">{bossP.bio}</p>
               )}
+              <div className="relative px-5 sm:px-7 py-5 flex items-center justify-start gap-2.5">
+                <KickBtn kick={bossEntry.kick} />
+                <FollowBtn handle={bossP.handle} label={`${t.follow} @${bossP.handle}`} big />
+              </div>
             </div>
           </div>
 
@@ -321,7 +331,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                       <XIconSmall className="w-3.5 h-3.5" />
                     </a>
                   </div>
-                  <div className="relative px-4 pb-4 -mt-7 flex items-end gap-3">
+                  <div className="relative px-4 pb-3 -mt-7 flex items-end gap-3">
                     <span className="relative rounded-full p-[2px] w-14 h-14 shrink-0 block"
                       style={{ background: 'linear-gradient(160deg,#FF8A8A,#E10600 55%,#4A0200)' }}>
                       {p.avatar ? (
@@ -334,17 +344,22 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                       {p.live && <span className="absolute bottom-0 end-0 w-3.5 h-3.5 rounded-full bg-[#53FC18] border-2 border-[#0d0606] shadow-[0_0_10px_#53FC18]" />}
                     </span>
                     <div className="min-w-0 flex-1 pb-0.5">
-                      <p className="font-black text-white truncate text-[14px]" dir="ltr">{p.name}</p>
+                      <p className="font-black text-white truncate text-[15px]" dir="ltr">{p.name}</p>
                       <p className="text-[11px] text-white/40 font-bold truncate" dir="ltr">@{p.handle}</p>
-                      {entry.kick && <p className="text-[10px] font-bold text-[#FF8A8A]/80 truncate" dir="ltr">KICK: {entry.kick}</p>}
+                      {entry.kick
+                        ? <p className="text-[10px] font-bold text-[#FF8A8A] truncate mt-0.5" dir="ltr">KICK: {entry.kick}</p>
+                        : <p className="text-[10px] font-bold text-white/25 truncate mt-0.5" dir="ltr">OFLAG STAFF</p>}
                     </div>
-                    <span className="shrink-0 text-[11px] font-black text-white/60" dir="ltr">{compact(p.followers)}</span>
                   </div>
                   <p className="relative px-4 text-[11px] text-white/40 font-medium leading-relaxed line-clamp-2 min-h-[32px]" dir="auto">{p.bio || '---'}</p>
                   <div className="relative px-4 pb-4 pt-2.5 flex items-center gap-2">
-                    <FollowBtn handle={p.handle} />
+                    <span className="shrink-0 inline-flex items-center gap-1.5 text-[11px] font-black px-3 py-2 rounded-xl bg-white/[0.04] border border-white/10">
+                      <span className="text-[#FF8A8A]" dir="ltr">{compact(p.followers)}</span>
+                      <span className="text-white/35 font-bold">{t.followers}</span>
+                    </span>
+                    <span className="flex-1" />
                     <KickBtn kick={entry.kick} square />
-                    <span className="text-[10px] font-bold text-white/30 uppercase tracking-[0.14em] shrink-0">{t.followers}</span>
+                    <FollowBtn handle={p.handle} />
                   </div>
                   <span className="absolute bottom-0 start-0 h-[2px] w-0 group-hover:w-full bg-gradient-to-r from-[#FF8A8A] to-[#E10600] transition-all duration-500" />
                 </div>
