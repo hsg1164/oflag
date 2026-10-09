@@ -275,9 +275,9 @@ export const DiscordWidget = XWidget;
 
 /* ============================ YOUTUBE — OFLAG (@oflagx) ============================
    Live channel data, refreshed every 5 minutes:
-     • Latest video  → YouTube RSS feed (public, no key)
-     • Subscribers   → Mixerno counter, Piped fallback */
-const CLAN_CHANNEL_ID = 'oflagx';
+     • Server API first (/api/social?platform=youtube → subs + latest video, no CORS)
+     • Direct RSS + Mixerno as fallback */
+const CLAN_CHANNEL_ID = 'UCR3C2TWZ5EJ99zXP24oRfBQ';
 const CLAN_CHANNEL_URL = 'https://www.youtube.com/@oflagx';
 // OFLAG blood-fortress identity — official banner + logo mark.
 const CLAN_BANNER = '/oflag-yt-banner.jpg';
@@ -299,20 +299,36 @@ export const YoutubeWidget: React.FC<CommunityWidgetsProps> = ({ lang }) => {
        let dead = false;
        const fmtSubs = (count: number) =>
           count >= 1000000 ? `${(count / 1000000).toFixed(1)}M+` : count >= 1000 ? `${(count / 1000).toFixed(1)}K+` : `${count}`;
-       const fetchVideo = async () => {
+       const fmtDate = (d: string) => {
           try {
-             // Resolve @handle -> channel id first (cached per session), then RSS
-             let cid = channelId;
-             if (!cid.startsWith('UC')) {
-                try {
-                   const r = await fetch(`/api/social?platform=youtube&handle=${encodeURIComponent(channelId)}`);
-                   const j = await r.json();
-                   if (j?.channelId) cid = j.channelId;
-                } catch {}
+             return new Date(d).toLocaleDateString(lang === 'ar' ? 'ar-SA' : 'en-US', { year: 'numeric', month: 'short', day: 'numeric' });
+          } catch { return d || 'OFLAG'; }
+       };
+       const fetchVideo = async () => {
+          // 0) Server API — latest video resolved server-side (no CORS issues)
+          try {
+             const r = await fetch(`/api/social?platform=youtube`);
+             const j = await r.json();
+             if (!dead && j?.latest?.link) {
+                setVideo({
+                   title: j.latest.title,
+                   link: j.latest.link,
+                   date: fmtDate(j.latest.date),
+                   thumbnail: String(j.latest.thumbnail || '').replace('hqdefault.jpg', 'maxresdefault.jpg')
+                });
+                if (typeof j?.count === 'number' && j.count > 0) setSubs(fmtSubs(j.count));
+                setLoading(false);
+                return;
              }
-             const rssUrl = cid.startsWith('UC')
-                ? `https://www.youtube.com/feeds/videos.xml?channel_id=${cid}`
-                : `https://www.youtube.com/feeds/videos.xml?user=${cid}`;
+          } catch {}
+          try {
+             let cid = channelId;
+             try {
+                const r2 = await fetch(`/api/social?platform=youtube`);
+                const j2 = await r2.json();
+                if (j2?.channelId) cid = j2.channelId;
+             } catch {}
+             const rssUrl = `https://www.youtube.com/feeds/videos.xml?channel_id=${cid}`;
              const apiUrl = `https://api.rss2json.com/v1/api.json?rss_url=${encodeURIComponent(rssUrl)}`;
              const response = await fetch(apiUrl);
              const data = await response.json();
@@ -451,10 +467,13 @@ export const YoutubeWidget: React.FC<CommunityWidgetsProps> = ({ lang }) => {
                           <img src="/oflag-logo.webp" alt="OFLAG emblem" loading="lazy" className="w-full h-full object-cover" />
                        </span>
                        <div className="min-w-0 flex-1">
-                          <p className="text-[12px] font-black text-white truncate">{lang === 'en' ? 'OFLAG ERA — Crimson Fortress' : 'عصر OFLAG — قلعة القرمز'}</p>
-                          <p className="text-[10px] font-bold text-[#FF8A8A] mt-0.5" dir="ltr">OFLAG • OFFICIAL</p>
+                          <p className="text-[12px] font-black text-white truncate">{lang === 'en' ? 'OFLAG official YouTube channel' : 'قناة OFLAG الرسمية على يوتيوب'}</p>
+                          <p className="text-[10px] font-bold text-[#FF8A8A] mt-0.5" dir="ltr">@oflagx • YOUTUBE</p>
                        </div>
-                       <span className="shrink-0 text-[9px] font-black tracking-[0.2em] px-2.5 py-1.5 rounded-lg bg-[#E10600] text-white" dir="ltr">LIVE</span>
+                       <span className="shrink-0 inline-flex items-center gap-1 text-[9px] font-black tracking-[0.2em] px-2.5 py-1.5 rounded-lg bg-white text-black" dir="ltr">
+                          <svg className="w-3 h-3 fill-current" viewBox="0 0 24 24"><path d="M12 2l2.4 2.4 3.4-.5 1 3.3 3 1.6-1.4 3.2 1.4 3.2-3 1.6-1 3.3-3.4-.5L12 22l-2.4-2.4-3.4.5-1-3.3-3-1.6L3.6 12 2.2 8.8l3-1.6 1-3.3 3.4.5L12 2z" /></svg>
+                          OFFICIAL
+                       </span>
                     </div>
                  </div>
                 {/* latest video — compact row, same weight as X post box */}

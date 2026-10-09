@@ -161,7 +161,7 @@ export async function getTwitterFollowers(username = 'oFLaGx'): Promise<number> 
   return FALLBACK.twitter;
 }
 
-export async function getYouTubeSubscribers(channelId = 'oflagx'): Promise<number> {
+export async function getYouTubeSubscribers(channelId = 'UCR3C2TWZ5EJ99zXP24oRfBQ'): Promise<number> {
   const via = await viaServerApi('youtube');
   if (via) return via;
   // Layer 2 — Mixerno (usually CORS-open)

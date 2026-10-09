@@ -15,7 +15,7 @@ const HANDLES = {
   instagram: 'oflagx',
   twitter: 'oFLaGx',
   snapchat: 'oflagx',
-  youtube: 'oflagx', // @oflagx — resolved to channel id live
+  youtube: 'UCR3C2TWZ5EJ99zXP24oRfBQ', // @oflagx (oFLaG) — verified UC channel id
 } as const;
 
 type Platform = keyof typeof HANDLES;
@@ -238,6 +238,25 @@ async function getSnapchat(): Promise<{ count: number; source: string }> {
   throw new Error('snapchat: no public counter available');
 }
 
+/** Latest YouTube upload — parses the public RSS feed directly (no middleman). */
+async function getYouTubeLatest(channelId: string): Promise<{ title: string; link: string; date: string; thumbnail: string } | null> {
+  try {
+    const xml = await fetchText(`https://www.youtube.com/feeds/videos.xml?channel_id=${channelId}`, 9000);
+    const entry = xml.match(/<entry>([\s\S]*?)<\/entry>/i)?.[1];
+    if (!entry) return null;
+    const unesc = (s: string) =>
+      s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'");
+    const vid = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/i)?.[1]?.trim() || '';
+    const title = unesc(entry.match(/<title>([\s\S]*?)<\/title>/i)?.[1]?.trim() || 'Latest video');
+    const link = entry.match(/<link[^>]*href="([^"]+)"/i)?.[1] || (vid ? `https://www.youtube.com/watch?v=${vid}` : '');
+    const date = entry.match(/<published>([^<]+)<\/published>/i)?.[1] || '';
+    if (!link) return null;
+    return { title, link, date, thumbnail: vid ? `https://i.ytimg.com/vi/${vid}/hqdefault.jpg` : '' };
+  } catch {
+    return null;
+  }
+}
+
 export default async function handler(request: Request) {
   const { searchParams } = new URL(request.url);
   const platform = (searchParams.get('platform') || '').toLowerCase() as Platform;
@@ -258,7 +277,16 @@ export default async function handler(request: Request) {
       snapchat: getSnapchat,
     };
     const { count, source } = await loaders[platform]();
-    return new Response(JSON.stringify({ platform, count, source, updatedAt: new Date().toISOString() }), {
+    const extra: Record<string, unknown> = {};
+    if (platform === 'youtube') {
+      const channelId = (await resolveYouTubeId()) || (HANDLES.youtube.startsWith('UC') ? HANDLES.youtube : null);
+      if (channelId) {
+        extra.channelId = channelId;
+        const latest = await getYouTubeLatest(channelId);
+        if (latest) extra.latest = latest;
+      }
+    }
+    return new Response(JSON.stringify({ platform, count, source, ...extra, updatedAt: new Date().toISOString() }), {
       status: 200,
       headers: {
         'Content-Type': 'application/json',

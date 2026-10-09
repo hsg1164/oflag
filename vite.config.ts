@@ -108,7 +108,7 @@ export default defineConfig(({ mode }) => {
               // ---- /api/social : عدّادات التواصل الحية محلياً (مرآة api/social.ts) ----
               const url = new URL(req.url, `http://${req.headers.host || 'localhost'}`);
               const platform = (url.searchParams.get('platform') || '').toLowerCase();
-              const HANDLES: Record<string, string> = { tiktok: 'oflagx', instagram: 'oflagx', twitter: 'oFLaGx', snapchat: 'oflagx', youtube: 'oflagx' };
+              const HANDLES: Record<string, string> = { tiktok: 'oflagx', instagram: 'oflagx', twitter: 'oFLaGx', snapchat: 'oflagx', youtube: 'UCR3C2TWZ5EJ99zXP24oRfBQ' };
               const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/126.0.0.0 Safari/537.36';
               const parseCompact = (input: any): number | null => {
                 if (typeof input === 'number' && Number.isFinite(input)) return Math.round(input);
@@ -290,7 +290,33 @@ export default defineConfig(({ mode }) => {
                 res.setHeader('Content-Type', 'application/json');
                 res.setHeader('Access-Control-Allow-Origin', '*');
                 res.statusCode = 200;
-                res.end(JSON.stringify({ platform, ...result, updatedAt: new Date().toISOString() }));
+                const extra: Record<string, any> = {};
+                if (platform === 'youtube') {
+                  // verified UC id for @oflagx + latest upload via RSS (server-side, no CORS)
+                  const ytId: string | null = HANDLES.youtube.startsWith('UC') ? HANDLES.youtube : null;
+                  if (ytId) {
+                    extra.channelId = ytId;
+                    // latest upload — parse the public RSS directly (no middleman)
+                    try {
+                      const xml = await tget(`https://www.youtube.com/feeds/videos.xml?channel_id=${ytId}`, 9000);
+                      const entry = xml.match(/<entry>([\s\S]*?)<\/entry>/i)?.[1];
+                      if (entry) {
+                        const unesc = (s: string) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;|&apos;/g, "'");
+                        const vid = entry.match(/<yt:videoId>([^<]+)<\/yt:videoId>/i)?.[1]?.trim() || '';
+                        const link = entry.match(/<link[^>]*href="([^"]+)"/i)?.[1] || (vid ? `https://www.youtube.com/watch?v=${vid}` : '');
+                        if (link) {
+                          extra.latest = {
+                            title: unesc(entry.match(/<title>([\s\S]*?)<\/title>/i)?.[1]?.trim() || 'Latest video'),
+                            link,
+                            date: entry.match(/<published>([^<]+)<\/published>/i)?.[1] || '',
+                            thumbnail: vid ? `https://i.ytimg.com/vi/${vid}/hqdefault.jpg` : '',
+                          };
+                        }
+                      }
+                    } catch {}
+                  }
+                }
+                res.end(JSON.stringify({ platform, ...result, ...extra, updatedAt: new Date().toISOString() }));
               } catch (err: any) {
                 res.statusCode = 502;
                 res.end(JSON.stringify({ platform, count: null, error: err.message || 'failed' }));
