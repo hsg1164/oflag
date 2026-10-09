@@ -596,7 +596,7 @@ type Supporter = { id: number; name: string; amount: number; currency: string; m
 const TIERS = [
     { amount: 50, label: '50$', c: '#FFCFCF', glow: 'rgba(255,207,207,0.45)', name: 'BLOOD', nameAr: 'دموي', perk: 'تنبيه دموي أنيق يظهر اسمك في الشات', perkEn: 'Sleek blood on-screen alert', icon: '✦' },
     { amount: 100, label: '100$', c: '#FF8A8A', glow: 'rgba(255,138,138,0.5)', name: 'EMBER', nameAr: 'جمري', perk: 'تنبيه جمري + شكر صوتي مباشر من اوفلاق', perkEn: 'Ember alert + live shoutout', icon: '⬣' },
-    { amount: 200, label: '200$', c: '#FF2233', glow: 'rgba(225,6,0,0.6)', name: 'CRIMSON', nameAr: 'قرمزي', perk: 'تنبيه قرمزي سينمائي + صوت مخصص باسمك', perkEn: 'Cinematic crimson alert + custom sound', icon: '◈', popular: true },
+    { amount: 200, label: '200$', c: '#FF2233', glow: 'rgba(225,6,0,0.6)', name: 'CRIMSON', nameAr: 'قرمزي', perk: 'تنبيه سينمائي يليق عليك — يظهر اليرت بشكل احترافي جداً', perkEn: 'A cinematic alert worthy of you — ultra-professional on-screen alert', icon: '◈', popular: true },
     { amount: 500, label: '500$', c: '#E10600', glow: 'rgba(225,6,0,0.55)', name: 'FORTRESS', nameAr: 'القلعة', perk: 'عرض اسمك بحجم الشاشة + مقطع شكر خاص', perkEn: 'Fullscreen takeover + clip', icon: '⬥' },
     { amount: 1000, label: '1000$', c: '#FF4D5A', glow: 'rgba(255,77,90,0.55)', name: 'LEGEND', nameAr: 'أسطوري', perk: 'دخول قاعة الخلود + فيديو تكريم خاص', perkEn: 'Hall of fame + tribute video', icon: '❖' },
 ];
@@ -616,18 +616,28 @@ const AlertTiers: React.FC<{ title: string; note: string; lang: Language }> = ({
                     <p className="text-[11px] md:text-xs font-black text-white/60 tracking-[0.32em] uppercase">{title}</p>
                     <span className="w-1.5 h-1.5 rotate-45 bg-[#FF2233] inline-block" aria-hidden="true" />
                 </div>
-                <p className="text-center text-[12px] text-white/40 font-medium mb-6">{isAr ? 'اضغط على أي مستوى لتشوف ميزته' : 'Tap any tier to preview its perk'}</p>
+                <p className="text-center text-[12px] text-white/40 font-medium mb-6">{isAr ? 'مستوى واحد مفعّل حالياً — الباقي قريباً' : 'One tier active right now — the rest coming soon'}</p>
                 <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5 sm:gap-3" role="list">
                     {TIERS.map((tr, i) => {
-                        const on = active === i;
+                        const enabled = i === 2;
+                        const on = enabled && active === i;
                         const pct = Math.max(8, Math.round((tr.amount / max) * 100));
                         return (
-                            <button key={tr.label} role="listitem" onClick={() => setActive(i)}
-                                className={`group relative text-start rounded-3xl border p-4 sm:p-5 overflow-hidden transition-all duration-500 active:scale-[0.97] ${on ? 'border-white/25 bg-white/[0.07] -translate-y-1.5 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)]' : 'border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05] hover:-translate-y-1'}`}>
+                            <button key={tr.label} role="listitem" onClick={() => { if (enabled) setActive(i); }} disabled={!enabled}
+                                className={`group relative text-start rounded-3xl border p-4 sm:p-5 overflow-hidden transition-all duration-500 ${enabled ? 'active:scale-[0.97] cursor-pointer' : 'cursor-not-allowed opacity-45 saturate-50'} ${on ? 'border-white/25 bg-white/[0.07] -translate-y-1.5 shadow-[0_24px_60px_-16px_rgba(0,0,0,0.7)]' : 'border-white/10 bg-white/[0.02] hover:border-white/25 hover:bg-white/[0.05] hover:-translate-y-1'}`}>
                                 <div className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none"
                                     style={{ background: `radial-gradient(220px circle at 50% 0%, ${tr.glow}, transparent 70%)` }} aria-hidden="true" />
+                                {!enabled && (
+                                    <span className="absolute inset-0 z-10 flex flex-col items-center justify-center gap-1.5 bg-black/55 backdrop-blur-[1px]">
+                                        <svg className="w-6 h-6 text-white/50" fill="none" viewBox="0 0 24 24" stroke="currentColor" strokeWidth={2}><path strokeLinecap="round" strokeLinejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" /></svg>
+                                        <span className="text-[9px] font-black tracking-[0.2em] text-white/50">{isAr ? 'مقفل' : 'LOCKED'}</span>
+                                    </span>
+                                )}
                                 {tr.popular && (
-                                    <span className="absolute top-3 end-3 text-[8px] font-black tracking-[0.18em] px-2 py-1 rounded-full bg-[#FF2233] text-black shadow-[0_0_18px_rgba(225,6,0,0.7)]">HOT</span>
+                                    <span className="absolute top-3 end-3 inline-flex items-center gap-1 text-[8px] font-black tracking-[0.14em] px-2 py-1 rounded-full bg-[#E10600] text-white shadow-[0_0_18px_rgba(225,6,0,0.7)]">
+                                        <span className="w-1.5 h-1.5 rounded-full bg-white animate-pulse" />
+                                        {isAr ? 'مفعّل الآن' : 'ACTIVE NOW'}
+                                    </span>
                                 )}
                                 <span className="relative w-10 h-10 rounded-2xl flex items-center justify-center text-lg font-black border border-white/15 bg-white/[0.06] transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
                                     style={{ color: tr.c, boxShadow: on ? `0 0 24px ${tr.glow}` : 'none' }}>{tr.icon}</span>
