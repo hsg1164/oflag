@@ -35,6 +35,10 @@ const NAV_DEFS = [
         icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 20s-7.5-4.6-7.5-10.3C4.5 6.6 6.7 5 8.8 5c1.4 0 2.6.7 3.2 1.8C12.6 5.7 13.8 5 15.2 5c2.1 0 4.3 1.6 4.3 4.7C19.5 15.4 12 20 12 20z" /></svg>,
     },
     {
+        href: '#moderators', id: 'moderators', ar: 'المشرفون', en: 'Mods',
+        icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M12 2.5 4.5 5.5v6c0 4.6 3.2 8.1 7.5 10 4.3-1.9 7.5-5.4 7.5-10v-6L12 2.5z" /><path d="m9 11.5 2.2 2.2L15.5 9.5" /></svg>,
+    },
+    {
         href: '#honor', id: 'honor', ar: 'الشرف', en: 'Honor',
         icon: <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={2.1} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><path d="M8 21h8M12 17v4M7 4h10v6a5 5 0 01-10 0V4z" /><path d="M7 6H4a1 1 0 00-1 1c0 2.5 2 4.5 5 4.5M17 6h3a1 1 0 011 1c0 2.5-2 4.5-5 4.5" /></svg>,
     },

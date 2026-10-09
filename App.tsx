@@ -11,6 +11,7 @@ import { VodTheater, TheaterItem } from './components/VodTheater';
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
 const ArchiveSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.ArchiveSection })));
 const StoryPage = lazy(() => import('./components/StoryPage').then(m => ({ default: m.StoryPage })));
+const ModeratorsSection = lazy(() => import('./components/ModeratorsSection'));
 
 // --- Constants (OFLAG) ---
 const DEFAULT_PROFILE_IMAGE = "/oflag-logo.webp";
@@ -78,6 +79,7 @@ const TRANSLATIONS = {
         socialsTitle: 'Social Arena', socialsSub: 'One hub — every platform. Pick your battlefield.',
         communityTitle: 'Community HQ', supportTitle: 'Support the Channel', supportSub: 'Your support keeps the blood fortress legendary.',
         honorTitle: 'Hall of Fame', honorSub: 'Top supporters across every stream.',
+        modsTitle: 'Moderators', modsSub: 'The guardians of the fortress — live from X.',
         archiveTitle: 'Archive', archiveSub: 'Clips and past streams.',
         statsTitle: 'Stream Stats', statsSub: 'Live numbers from the blood fortress.',
         tiersTitle: 'Special alert tiers',
@@ -104,6 +106,7 @@ const TRANSLATIONS = {
         socialsTitle: 'ساحة التواصل', socialsSub: 'كل المنصات في مكان واحد — اختر ساحتك.',
         communityTitle: 'مقر المجتمع', supportTitle: 'دعم القناة', supportSub: 'دعمك يخلي قلعة القرمز أسطورية وتستمر.',
         honorTitle: 'لوحة الشرف', honorSub: 'كبار الداعمين عبر كل البثوث.',
+        modsTitle: 'المشرفون', modsSub: 'حراس القلعة — مباشرة من منصة X.',
         archiveTitle: 'الأرشيف', archiveSub: 'اللقطات والبثوث السابقة.',
         statsTitle: 'إحصائيات البث', statsSub: 'أرقام قلعة القرمز لحظة بلحظة.',
         tiersTitle: 'مستويات التنبيه الخاصة',
@@ -1098,15 +1101,21 @@ export default function App() {
                             <Reveal delay={80}><SupportArena lang={lang} supporters={[]} /></Reveal>
                         </section>
 
+                        {/* ===== MODERATORS (above Hall of Fame) ===== */}
+                        <section id="moderators" className="pt-12 md:pt-16 scroll-mt-28">
+                            <Reveal><SectionHeading no="05" title={t.modsTitle} sub={t.modsSub} en="MODERATORS" /></Reveal>
+                            <Reveal delay={80}><Suspense fallback={<div className="w-full h-64 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ModeratorsSection lang={lang} /></Suspense></Reveal>
+                        </section>
+
                         {/* ===== HONOR (gifters + last session when offline + chat legends) ===== */}
                         <section id="honor" className="pt-12 md:pt-16 scroll-mt-28">
-                            <Reveal><SectionHeading no="05" title={t.honorTitle} sub={t.honorSub} en="HALL OF FAME" /></Reveal>
+                            <Reveal><SectionHeading no="06" title={t.honorTitle} sub={t.honorSub} en="HALL OF FAME" /></Reveal>
                             <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><HonorSection lang={lang} report={!streamInfo.isLive ? (<div id="live" className="scroll-mt-28"><LastSessionReport lang={lang} data={lastSession} clips={clips} past={pastSessions} onPlayVod={openVod} onPlayClip={openClip} /></div>) : null} /></Suspense></Reveal>
                         </section>
 
                         {/* ===== ARCHIVE ===== */}
                         <section id="archive" className="pt-12 md:pt-16 scroll-mt-28">
-                            <Reveal><SectionHeading no="06" title={t.archiveTitle} sub={t.archiveSub} en="ARCHIVE" /></Reveal>
+                            <Reveal><SectionHeading no="07" title={t.archiveTitle} sub={t.archiveSub} en="ARCHIVE" /></Reveal>
                             <Reveal delay={80}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><ArchiveSection lang={lang} onPlayVod={openVod} onPlayClip={openClip} /></Suspense></Reveal>
                         </section>
 
