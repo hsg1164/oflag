@@ -16,7 +16,7 @@ export interface SocialMediaStats {
 
 export const FALLBACK = {
   instagram: 0,
-  tiktok: 0,
+  tiktok: 27300, // fixed fallback: always 27.3K when live API fails
   twitter: 26700, // verified live (@oFLaGx, Oct 2026)
   youtube: 0,
 };
@@ -25,7 +25,7 @@ export const FALLBACK = {
 export const VERIFIED_INSTAGRAM = 10500;
 
 /** Owner-verified TikTok count — shown when the live API reads stale/wrong data. */
-export const VERIFIED_TIKTOK = 27200;
+export const VERIFIED_TIKTOK = 27300;
 
 const CACHE_KEY = 'oflag_social_cache_v1';
 export const SOCIAL_TTL_MS = 5 * 60 * 1000;

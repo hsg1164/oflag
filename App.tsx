@@ -754,12 +754,12 @@ export default function App() {
 
     const [socialStats, setSocialStats] = useState<Record<string, string>>({
         'KICK': '—', 'TikTok': '—',
-        'X': '—', 'Snapchat': '—', 'WhatsApp': '—'
+        'X': '—', 'Snapchat': '—', 'WhatsApp': '8.7K'
     });
 
     const [socials, setSocials] = useState<SocialLink[]>(() => buildDefaultSocials({
         'KICK': '—', 'TikTok': '—',
-        'X': '—', 'Snapchat': '—', 'WhatsApp': '—'
+        'X': '—', 'Snapchat': '—', 'WhatsApp': '8.7K'
     }));
     const [lastSession, setLastSession] = useState<any>(null);
     const [pastSessions, setPastSessions] = useState<any[]>([]);
