@@ -53,7 +53,6 @@ const buildDefaultSocials = (stats: Record<string, string>): SocialLink[] => ([
     { ...KICK_SOCIAL, followerCount: stats['KICK'] || KICK_SOCIAL.followerCount },
     createSocialLink('twitter', 'https://x.com/oFLaGx', stats['X'], 'الأخبار والتحديثات أول بأول'),
     createSocialLink('tiktok', 'https://www.tiktok.com/@oflagx', stats['TikTok'], 'أقوى المقاطع والترند'),
-    createSocialLink('youtube', 'https://www.youtube.com/@oflagx', stats['YouTube'], 'الفيديوهات والبثوث الكاملة'),
     createSocialLink('snapchat', 'https://www.snapchat.com/@oflagx', stats['Snapchat'], 'سنابات ويوميات حصرية'),
     createSocialLink('whatsapp', 'https://www.whatsapp.com/channel/0029VaqJZxB4inoqZq6Ra01s', stats['WhatsApp'], 'قناة الواتساب — كل جديد أول بأول'),
 ].filter(Boolean) as SocialLink[]);
@@ -754,12 +753,12 @@ export default function App() {
 
     const [socialStats, setSocialStats] = useState<Record<string, string>>({
         'KICK': '—', 'TikTok': '—',
-        'X': '—', 'YouTube': '—', 'Snapchat': '—', 'WhatsApp': '—'
+        'X': '—', 'Snapchat': '—', 'WhatsApp': '—'
     });
 
     const [socials, setSocials] = useState<SocialLink[]>(() => buildDefaultSocials({
         'KICK': '—', 'TikTok': '—',
-        'X': '—', 'YouTube': '—', 'Snapchat': '—', 'WhatsApp': '—'
+        'X': '—', 'Snapchat': '—', 'WhatsApp': '—'
     }));
     const [lastSession, setLastSession] = useState<any>(null);
     const [pastSessions, setPastSessions] = useState<any[]>([]);
@@ -767,12 +766,11 @@ export default function App() {
 
     // Live social counters — dedicated 5-minute loop + instant cache paint (API-style)
     useEffect(() => {
-        const apply = (stats: { tiktok?: number; twitter?: number; youtube?: number; snapchat?: number }) => {
+        const apply = (stats: { tiktok?: number; twitter?: number; snapchat?: number }) => {
             setSocialStats(prev => ({
                 ...prev,
                 'TikTok': formatFollowerCount(stats.tiktok || 0),
                 'X': formatFollowerCount(stats.twitter || 0),
-                'YouTube': formatFollowerCount(stats.youtube || 0),
                 'Snapchat': formatFollowerCount(stats.snapchat || 0),
             }));
         };
@@ -972,7 +970,7 @@ export default function App() {
                                     <div className="grid grid-cols-2 divide-x divide-x-reverse divide-[#FF2233]/15">
                                         {[
                                             { v: socialStats['KICK'] || '—', l: t.statsKick },
-                                            { v: '6', l: t.statsPlatforms },
+                                            { v: '5', l: t.statsPlatforms },
                                         ].map((s, i) => (
                                             <div key={i} className="px-2 sm:px-4 py-4 sm:py-5 text-center min-w-0">
                                                 <p className="font-heading text-xl sm:text-2xl md:text-3xl font-black text-white truncate" dir="ltr">{s.v}</p>

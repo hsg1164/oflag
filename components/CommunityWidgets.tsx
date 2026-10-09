@@ -280,8 +280,8 @@ export const DiscordWidget = XWidget;
 const CLAN_CHANNEL_ID = 'oflagx';
 const CLAN_CHANNEL_URL = 'https://www.youtube.com/@oflagx';
 // OFLAG blood-fortress identity — official banner + logo mark.
-const CLAN_BANNER = '/bg-oflag.png';
-const CLAN_BANNER_FALLBACK = '/bg-oflag.png';
+const CLAN_BANNER = '/oflag-yt-banner.jpg';
+const CLAN_BANNER_FALLBACK = '/oflag-yt-banner.jpg';
 const CLAN_MARK = '/oflag-logo.webp';
 const CLAN_ORANGE = '#E10600';
 const CLAN_ORANGE_DEEP = '#4A0200';
