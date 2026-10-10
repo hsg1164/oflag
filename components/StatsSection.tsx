@@ -3,6 +3,7 @@ import { Language, LeaderboardData, Clip, Video, ChannelInfo, LeaderboardEntry }
 import { KickIcon } from './Icons';
 import BotrixLeaderboard from './BotrixLeaderboard';
 import { kickFetch } from '../utils/kickApi';
+import { useVisible } from '../utils/useVisible';
 
 interface StatsSectionProps {
   lang: Language;
@@ -296,6 +297,7 @@ export const HonorSection: React.FC<StatsSectionProps> = ({ lang, report }) => {
   // Initialize as null to indicate "loading"
   const [leaderboards, setLeaderboards] = useState<LeaderboardData | null>(null);
   const [channelInfo, setChannelInfo] = useState<ChannelInfo | null>(null);
+  const [visRef, visible] = useVisible();
 
 
   const t = {
@@ -315,6 +317,7 @@ export const HonorSection: React.FC<StatsSectionProps> = ({ lang, report }) => {
   };
 
   useEffect(() => {
+    if (!visible) return; // below fold — defer until near viewport
     const channelSlug = 'oflag';
 
     // جلب معلومات القناة (المتابعين)
@@ -340,10 +343,10 @@ export const HonorSection: React.FC<StatsSectionProps> = ({ lang, report }) => {
         }
     }).catch(() => setLeaderboards({ gifts: [], gifts_week: [], gifts_month: [] }));
 
-  }, []);
+  }, [visible]);
 
   return (
-    <>
+    <div ref={visRef} className="w-full">
       <div className="w-full space-y-10 animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
 
         {/* --- KICK FORTRESS: followers + sub badges in 3D --- */}
@@ -509,13 +512,14 @@ export const HonorSection: React.FC<StatsSectionProps> = ({ lang, report }) => {
           <BotrixLeaderboard lang={lang} />
         </div>
       </div>
-    </>
+    </div>
   );
 };
 
 export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang, onPlayVod, onPlayClip }) => {
   const [clips, setClips] = useState<Clip[] | null>(null);
   const [videos, setVideos] = useState<Video[] | null>(null);
+  const [visRef, visible] = useVisible();
 
   const t = {
     recentClips: lang === 'en' ? 'Recent Clips' : 'آخر اللقطات',
@@ -525,6 +529,7 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang, onPlayVod, o
   };
 
   useEffect(() => {
+    if (!visible) return; // below fold — defer until near viewport
     const channelSlug = 'oflag';
 
     // جلب اللقطات (آخر اللقطات مع منطق استخراج قوي لضمان ظهور البيانات)
@@ -548,10 +553,10 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang, onPlayVod, o
         setVideos(videosArray.slice(0, 3));
     }).catch(() => setVideos([]));
 
-  }, []);
+  }, [visible]);
 
   return (
-    <>
+    <div ref={visRef} className="w-full">
       <div className="w-full animate-fade-in-up" style={{ animationDelay: '0.2s' }}>
         {/* --- CLIPS & VODS GRID --- */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-5 lg:gap-7">
@@ -737,6 +742,6 @@ export const ArchiveSection: React.FC<StatsSectionProps> = ({ lang, onPlayVod, o
           </div>
         </div>
       </div>
-    </>
+    </div>
   );
 };

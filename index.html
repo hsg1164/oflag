@@ -443,6 +443,17 @@
     .wm-mark:hover .wm-stroke { color: rgba(225,6,0,0.16); -webkit-text-stroke-color: rgba(255,180,180,1); }
     .wm-sheen { position: absolute; inset: 0; display: block; color: transparent; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.4) 46%, rgba(225,6,0,0.5) 50%, rgba(255,255,255,0.4) 54%, transparent 70%); background-size: 280% 100%; -webkit-background-clip: text; background-clip: text; animation: wm-sheen 7s ease-in-out infinite; pointer-events: none; }
     @keyframes wm-sheen { 0% { background-position: 130% 0; } 55%, 100% { background-position: -130% 0; } }
+
+    /* ===== Mobile performance diet: static glow instead of animated layers ===== */
+    @media (max-width: 768px) {
+      .card-sheen::before { animation: none; display: none; }
+      .animate-aurora { animation: none !important; }
+      .beam { display: none; }
+      .grain::after { display: none; }
+      .profile-scanner { animation: none; display: none; }
+      .halo-conic { animation-duration: 60s; }
+      .xt-line-dot { animation: none; display: none; }
+    }
   </style>
   <script type="importmap">
     {

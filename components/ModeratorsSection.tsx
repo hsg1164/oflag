@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import type { Language } from '../types';
+import { useVisible } from '../utils/useVisible';
 
 interface RosterEntry {
   kick: string;
@@ -179,6 +180,7 @@ const ShieldIcon = ({ className }: { className?: string }) => (
 const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
   const [profiles, setProfiles] = useState<Record<string, ModProfile>>(() => readCache()?.data || {});
   const [loading, setLoading] = useState(true);
+  const [visRef, visible] = useVisible();
 
   const t = {
     mod: lang === 'ar' ? 'مشرف' : 'MOD',
@@ -196,6 +198,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
   };
 
   useEffect(() => {
+    if (!visible) return; // below fold — don't fire 22 requests on first paint
     let cancelled = false;
     const xLive = new Set<string>();
     const merged: Record<string, ModProfile> = { ...(readCache()?.data || {}) };
@@ -252,14 +255,14 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, []);
+  }, [visible]);
 
   const boss = ROSTER[0];
   const rest = ROSTER.slice(1);
   const bossP = get(boss.x);
 
   return (
-    <div className="w-full">
+    <div ref={visRef} className="w-full">
       {/* Sync bar — blood shimmer while fetching X */}
       <div
         className={`h-[2px] w-full overflow-hidden rounded-full bg-white/[0.06] mb-4 md:mb-6 transition-opacity duration-700 ${loading ? 'opacity-100' : 'opacity-0'}`}

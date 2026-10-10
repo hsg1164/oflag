@@ -1,6 +1,7 @@
 ﻿import React, { useState, useEffect, useRef } from 'react';
 import { XIcon, YoutubeIcon } from './Icons';
 import { Language } from '../types';
+import { useVisible } from '../utils/useVisible';
 
 interface YoutubeData {
    title: string;
@@ -104,9 +105,11 @@ export const XWidget: React.FC<CommunityWidgetsProps> = ({ lang }) => {
    const [data, setData] = useState<XLive>(X_FALLBACK);
    const [loading, setLoading] = useState(true);
    const { ref, tilt, move, leave } = useTilt(9);
+   const [visRef, visible] = useVisible();
    const isRTL = lang === 'ar';
 
    useEffect(() => {
+      if (!visible) return; // deferred until near viewport
       let dead = false;
       const fetchX = async () => {
          try {
@@ -137,14 +140,14 @@ export const XWidget: React.FC<CommunityWidgetsProps> = ({ lang }) => {
       fetchX();
       const interval = setInterval(fetchX, 5 * 60 * 1000);
       return () => { dead = true; clearInterval(interval); };
-   }, []);
+   }, [visible]);
 
-   if (loading) return <CardSkeleton glow="rgba(255,255,255,0.22)" />;
+   if (loading) return <div ref={visRef} className="h-full"><CardSkeleton glow="rgba(255,255,255,0.22)" /></div>;
 
    const latest = X_TWEETS_FALLBACK[0];
 
    return (
-      <div className="perspective-1000 h-full">
+      <div ref={visRef} className="perspective-1000 h-full">
          <div
             ref={ref}
             onPointerMove={move}
@@ -291,11 +294,13 @@ export const YoutubeWidget: React.FC<CommunityWidgetsProps> = ({ lang }) => {
     const [subs, setSubs] = useState<string>('—');
     const [loading, setLoading] = useState(true);
     const { ref, tilt, move, leave } = useTilt(9);
+    const [visRef, visible] = useVisible();
     const isRTL = lang === 'ar';
     const channelId = CLAN_CHANNEL_ID;
     const channelUrl = CLAN_CHANNEL_URL;
 
     useEffect(() => {
+       if (!visible) return; // deferred until near viewport
        let dead = false;
        const fmtSubs = (count: number) =>
           count >= 1000000 ? `${(count / 1000000).toFixed(1)}M+` : count >= 1000 ? `${(count / 1000).toFixed(1)}K+` : `${count}`;
@@ -388,12 +393,12 @@ export const YoutubeWidget: React.FC<CommunityWidgetsProps> = ({ lang }) => {
       const interval = setInterval(() => { fetchVideo(); fetchSubs(); }, 5 * 60 * 1000);
       return () => { dead = true; clearInterval(interval); };
       // eslint-disable-next-line react-hooks/exhaustive-deps
-   }, [lang]);
+   }, [lang, visible]);
 
-     if (loading && !video) return <CardSkeleton glow="rgba(225,6,0,0.35)" />;
+     if (loading && !video) return <div ref={visRef} className="h-full"><CardSkeleton glow="rgba(225,6,0,0.35)" /></div>;
 
      return (
-        <div className="perspective-1000 h-full">
+        <div ref={visRef} className="perspective-1000 h-full">
            <div
               ref={ref}
               onPointerMove={move}

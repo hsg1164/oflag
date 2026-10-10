@@ -1,4 +1,5 @@
 ﻿import React, { useEffect, useState, useMemo, useRef } from 'react';
+import { useVisible } from '../utils/useVisible';
 
 interface BotrixEntry {
   watchtime: number;
@@ -63,8 +64,10 @@ const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
   const [data, setData] = useState<BotrixEntry[] | null>(null);
   const [avatars, setAvatars] = useState<Record<string, string>>({});
   const fetchedRef = useRef<Set<string>>(new Set());
+  const [visRef, visible] = useVisible();
 
   useEffect(() => {
+    if (!visible) return; // deferred until near viewport
     let cancelled = false;
     fetch(API_URL)
       .then(r => r.json())
@@ -85,7 +88,7 @@ const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
       })
       .catch(() => { if (!cancelled) setData([]); });
     return () => { cancelled = true; };
-  }, []);
+  }, [visible]);
 
   const rich = useMemo(() => data || [], [data]);
 
@@ -142,7 +145,7 @@ const BotrixLeaderboard: React.FC<BotrixLeaderboardProps> = ({ lang }) => {
     : 'rgba(255,255,255,0.12)';
 
   return (
-    <div className="w-full animate-fade-in-up">
+    <div ref={visRef} className="w-full animate-fade-in-up">
       <div className="group relative rounded-[28px] overflow-hidden bg-white/[0.03] border border-white/10 backdrop-blur-2xl transition-colors duration-500 hover:border-[#E10600]/30">
         <div className="absolute top-0 inset-x-0 h-px bg-gradient-to-l from-transparent via-[#E10600]/60 to-transparent" aria-hidden="true" />
         <div className="absolute -top-24 start-1/4 w-96 h-96 bg-[#E10600]/[0.08] blur-[110px] pointer-events-none" aria-hidden="true" />
