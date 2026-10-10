@@ -207,16 +207,19 @@
     }
 
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); will-change: opacity, transform; }
-    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); will-change: auto; }
 
 
     /* ===== PHONE LITE SYSTEM: same design, fraction of the GPU/memory cost =====
        (desktop keeps every effect at full quality) */
     @media (max-width: 768px) {
+      /* kill the fullscreen filter repaint on scroll (invisible difference on phones) */
+      .fortress_bg, .fortress_overlay, .oflag_bg, .oflag_overlay { filter: none !important; }
       /* cheaper frosted glass on small GPUs (visually near-identical at phone sizes) */
       .backdrop-blur-2xl { --tw-backdrop-blur: blur(14px) !important; }
       .backdrop-blur-xl { --tw-backdrop-blur: blur(10px) !important; }
       .backdrop-blur-lg { --tw-backdrop-blur: blur(8px) !important; }
+      .backdrop-blur-md { --tw-backdrop-blur: blur(6px) !important; }
       /* pause the per-card shine sweep on phones (static sheen stays) */
       .card-sheen::before { animation: none; opacity: 0; }
       /* calm the orbiting halos to a static glow ring on phones */

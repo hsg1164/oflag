@@ -1,6 +1,5 @@
 import React, { useEffect, useState } from 'react';
 import type { Language } from '../types';
-import { useVisible } from '../utils/useVisible';
 
 interface RosterEntry {
   kick: string;
@@ -38,6 +37,9 @@ interface ModProfile {
 const CACHE_KEY = 'oflag_mods_cache_v2';
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const REFRESH_MS = 10 * 60 * 1000;
+
+// phones download ~4x lighter X images (same look, fraction of the memory)
+const IS_PHONE = typeof window !== 'undefined' && window.matchMedia('(max-width: 768px)').matches;
 
 const compact = (n: number | null | undefined) => {
   if (n == null || !Number.isFinite(n)) return '---';
@@ -120,8 +122,8 @@ async function fetchXMod(handle: string, timeoutMs = 9000): Promise<ModProfile |
   return {
     name: user.name || handle,
     handle: user.screen_name || handle,
-    avatar: avatarRaw ? avatarRaw.replace('_normal.', '_400x400.') : '',
-    banner: bannerRaw ? `${bannerRaw}/1500x500` : '',
+    avatar: avatarRaw ? avatarRaw.replace('_normal.', IS_PHONE ? '_200x200.' : '_400x400.') : '',
+    banner: bannerRaw ? `${bannerRaw}${IS_PHONE ? '/600x200' : '/1500x500'}` : '',
     bio: user.description || '',
     followers: typeof user.followers === 'number' ? user.followers : null,
     tweets: typeof user.tweets === 'number' ? user.tweets : null,
@@ -180,7 +182,6 @@ const ShieldIcon = ({ className }: { className?: string }) => (
 const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
   const [profiles, setProfiles] = useState<Record<string, ModProfile>>(() => readCache()?.data || {});
   const [loading, setLoading] = useState(true);
-  const [visRef, visible] = useVisible();
 
   const t = {
     mod: lang === 'ar' ? 'مشرف' : 'MOD',
@@ -198,7 +199,6 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
   };
 
   useEffect(() => {
-    if (!visible) return; // below fold — don't fire 22 requests on first paint
     let cancelled = false;
     const xLive = new Set<string>();
     const merged: Record<string, ModProfile> = { ...(readCache()?.data || {}) };
@@ -255,14 +255,14 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
       cancelled = true;
       clearInterval(timer);
     };
-  }, [visible]);
+  }, []);
 
   const boss = ROSTER[0];
   const rest = ROSTER.slice(1);
   const bossP = get(boss.x);
 
   return (
-    <div ref={visRef} className="w-full">
+    <div className="w-full">
       {/* Sync bar — blood shimmer while fetching X */}
       <div
         className={`h-[2px] w-full overflow-hidden rounded-full bg-white/[0.06] mb-4 md:mb-6 transition-opacity duration-700 ${loading ? 'opacity-100' : 'opacity-0'}`}
@@ -283,7 +283,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
             {/* البانر العلوي */}
             <div className="relative h-44 sm:h-52 lg:h-60 overflow-hidden bg-gradient-to-l from-[#2a0d0d] via-[#141414] to-[#1c0a0a]">
               {bossP.banner ? (
-                <img src={bossP.banner} alt="" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover" />
+                <img src={bossP.banner} alt="" loading="lazy" decoding="async" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover" />
               ) : (
                 <div className="absolute inset-0" aria-hidden="true">
                   <div className="absolute inset-0 bg-gradient-to-l from-[#E10600]/20 via-transparent to-[#FF2233]/10" />
@@ -320,7 +320,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                   >
                     <span className="block w-full h-full rounded-full overflow-hidden bg-black border-2 border-black">
                       {bossP.avatar ? (
-                        <img src={bossP.avatar} alt={bossP.name} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover" />
+                        <img src={bossP.avatar} alt={bossP.name} loading="lazy" decoding="async" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover" />
                       ) : (
                         <span className="w-full h-full flex items-center justify-center text-2xl sm:text-3xl font-black text-[#FFCFCF] bg-gradient-to-b from-[#2a0d0d] to-black" dir="ltr">
                           {(bossP.name || boss.kick).charAt(0).toUpperCase()}
@@ -413,7 +413,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
               {/* البانر: شارة مشرف يمين + زر X يسار */}
               <div className="relative h-24 sm:h-28 overflow-hidden bg-[#101010]">
                 {p.banner ? (
-                  <img src={p.banner} alt="" loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
+                  <img src={p.banner} alt="" loading="lazy" decoding="async" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-500" />
                 ) : (
                   <div className="absolute inset-0 overflow-hidden" aria-hidden="true">
                     <div className="absolute inset-0 bg-gradient-to-l from-[#2a0d0d] via-[#101010] to-[#1c0a0a]" />
@@ -446,7 +446,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                     <span className="block w-14 h-14 rounded-full p-[2px] bg-gradient-to-b from-[#FFCFCF] via-[#E10600] to-[#4A0200] shadow-[0_0_22px_rgba(225,6,0,0.5)] group-hover:shadow-[0_0_30px_rgba(225,6,0,0.7)] transition-shadow duration-500">
                       <span className="block w-full h-full rounded-full overflow-hidden bg-black">
                         {p.avatar ? (
-                          <img src={p.avatar} alt={p.name} loading="lazy" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover" />
+                          <img src={p.avatar} alt={p.name} loading="lazy" decoding="async" onError={(e) => { (e.target as HTMLImageElement).style.display = 'none'; }} className="w-full h-full object-cover" />
                         ) : (
                           <span className="w-full h-full flex items-center justify-center text-xl font-black text-[#FFCFCF] bg-gradient-to-b from-[#2a0d0d] to-black" dir="ltr">
                             {(p.name || m.kick).charAt(0).toUpperCase()}
