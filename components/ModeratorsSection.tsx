@@ -2,25 +2,26 @@ import React, { useEffect, useState } from 'react';
 import type { Language } from '../types';
 
 interface RosterEntry {
-  kick: string;
+  kick: string; // URL slug (verified via Kick API)
+  label?: string; // display name when it differs from the slug
   x: string;
   boss?: boolean;
   kickLink?: boolean; // true = show Kick button, otherwise X only
 }
 
-// 11 moderators — Kick name + X handle (live data via FixTweet)
+// 11 moderators — Kick slug (verified) + X handle (live data via FixTweet + Kick)
 const ROSTER: RosterEntry[] = [
   { kick: 'xAREEJ1', x: 'itsxAREEJ1', boss: true },
-  { kick: 'M0ATAZ', x: 'S7_Moataz', kickLink: true },
+  { kick: 'm0ataz', x: 'S7_Moataz', kickLink: true },
   { kick: 'iriliir_5', x: 'iriliir_5' },
   { kick: 'i_fares_0i', x: 'i_fares_0i' },
-  { kick: 'sa3bood911', x: 'sa3bood911', kickLink: true },
-  { kick: 'vghalaa1', x: 'vghalaa1' },
+  { kick: 'SA3BOOD', x: 'sa3bood911', kickLink: true },
+  { kick: 'vghala1', x: 'vghalaa1', kickLink: true },
   { kick: '2Yaseer', x: 'ieY52', kickLink: true },
-  { kick: '_aishilad', x: '_aishilad' },
+  { kick: 'AISHILAD', x: '_aishilad', kickLink: true },
   { kick: 'A7MEDO', x: '_A7MEDO_', kickLink: true },
-  { kick: 'Alghamdiz', x: 'S7le_A', kickLink: true },
-  { kick: '2nellyy', x: '2nellyy' },
+  { kick: 'Alghamdiz', label: 'AIghamdiz', x: 'S7le_A', kickLink: true },
+  { kick: '2Nelly', x: '2nellyy', kickLink: true },
 ];
 
 interface ModProfile {
@@ -34,7 +35,7 @@ interface ModProfile {
   live: boolean;
 }
 
-const CACHE_KEY = 'oflag_mods_cache_v2';
+const CACHE_KEY = 'oflag_mods_cache_v3';
 const CACHE_TTL_MS = 30 * 60 * 1000;
 const REFRESH_MS = 10 * 60 * 1000;
 
@@ -469,7 +470,7 @@ const ModeratorsSection: React.FC<{ lang: Language }> = ({ lang }) => {
                       @{p.handle}
                     </p>
                     <p className="text-[10px] font-bold text-[#FF8A8A]/80 tracking-wide truncate mt-0.5" dir="ltr">
-                      KICK: {m.kick}
+                      KICK: {m.label || m.kick}
                     </p>
                   </div>
                 </div>
