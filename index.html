@@ -91,7 +91,8 @@
     }
   </script>
 
-  <link rel="preload" as="image" href="/bg-oflag.png" fetchpriority="high">
+  <link rel="preload" as="image" href="/bg-oflag.png" fetchpriority="high" media="(min-width: 768px)">
+  <link rel="preload" as="image" href="/bg-oflag-mobile.png" fetchpriority="high" media="(max-width: 767px)">
   <link rel="preload" as="image" href="/oflag-logo.webp" fetchpriority="high">
   <link rel="preconnect" href="https://esm.sh" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -121,7 +122,7 @@
 
     /* OFLAG CRIMSON FORTRESS — cinematic background tuned for the crimson void art */
     .fortress_bg, .oflag_bg {
-      background-image: url('/bg-oflag.png');
+      background-image: url('/bg-oflag-mobile.png');
       background-size: cover; background-position: center 20%; background-repeat: no-repeat;
       background-attachment: scroll;
       filter: saturate(1.12) contrast(1.06);
@@ -207,9 +208,7 @@
 
     .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); will-change: opacity, transform; }
     .reveal.is-visible { opacity: 1; transform: translateY(0); }
-    /* Below-fold sections skip rendering until near viewport — huge initial-load win */
-    section[id] { content-visibility: auto; contain-intrinsic-size: auto 560px; }
-    section[id="top"] { content-visibility: visible; }
+
 
     /* ===== PHONE LITE SYSTEM: same design, fraction of the GPU/memory cost =====
        (desktop keeps every effect at full quality) */
