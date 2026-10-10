@@ -154,13 +154,13 @@ const ArenaBackground: React.FC = () => {
             canvas.width = Math.floor(w * DPR); canvas.height = Math.floor(h * DPR);
             canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
             ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-            const n = Math.min(isMobile ? 22 : 40, Math.floor(w / 38));
+            const n = Math.min(isMobile ? 34 : 60, Math.floor(w / 26));
             parts = Array.from({ length: n }, () => ({
                 x: Math.random() * w, y: Math.random() * h,
-                r: 0.7 + Math.random() * 2.2,
+                r: 0.8 + Math.random() * 2.6,
                 vy: -(0.25 + Math.random() * 0.7), vx: (Math.random() - 0.5) * 0.2,
                 sway: 0.3 + Math.random() * 0.9, phase: Math.random() * Math.PI * 2,
-                a: 0.2 + Math.random() * 0.55, ember: Math.random() > 0.4, blood: Math.random() > 0.45,
+                a: 0.25 + Math.random() * 0.6, ember: Math.random() > 0.35, blood: Math.random() > 0.4,
             }));
         };
         resize();
@@ -169,13 +169,13 @@ const ArenaBackground: React.FC = () => {
         const tick = (now: number) => {
             raf = requestAnimationFrame(tick);
             if (document.hidden) return;
-            if (now - last < 34) return; // ~30fps is plenty for ambient sparks
+            if (now - last < 28) return; // ~36fps — smooth fire, still cheap
             last = now;
-            t += 0.034;
+            t += 0.028;
             ctx.clearRect(0, 0, w, h);
             for (const p of parts) {
-                p.y += p.vy * 2;
-                p.x += p.vx * 2 + Math.sin(t * p.sway + p.phase) * 0.5;
+                p.y += p.vy * 1.7;
+                p.x += p.vx * 1.7 + Math.sin(t * p.sway + p.phase) * 0.45;
                 if (p.y < -12) { p.y = h + 12; p.x = Math.random() * w; }
                 if (p.x < -12) p.x = w + 12; if (p.x > w + 12) p.x = -12;
                 const flick = p.ember ? (0.72 + 0.28 * Math.sin(t * 5 + p.phase)) : 1;
@@ -183,7 +183,7 @@ const ArenaBackground: React.FC = () => {
                 const col = p.blood ? '225,6,0' : p.ember ? '255,107,0' : '235,225,205';
                 const dim = p.blood || p.ember ? 1 : 0.5;
                 // cheap two-pass glow: faint halo + solid core (zero shadowBlur)
-                ctx.globalAlpha = alpha * 0.22 * dim;
+                ctx.globalAlpha = alpha * 0.28 * dim;
                 ctx.fillStyle = `rgb(${col})`;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
