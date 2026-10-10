@@ -94,7 +94,6 @@
   <link rel="preload" as="image" href="/bg-oflag.png" fetchpriority="high" media="(min-width: 768px)">
   <link rel="preload" as="image" href="/bg-oflag-mobile.png" fetchpriority="high" media="(max-width: 767px)">
   <link rel="preload" as="image" href="/oflag-logo.webp" fetchpriority="high">
-  <link rel="preconnect" href="https://esm.sh" crossorigin>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link
@@ -393,22 +392,23 @@
     .wm-sheen { position: absolute; inset: 0; display: block; color: transparent; background: linear-gradient(100deg, transparent 30%, rgba(255,255,255,0.4) 46%, rgba(225,6,0,0.5) 50%, rgba(255,255,255,0.4) 54%, transparent 70%); background-size: 280% 100%; -webkit-background-clip: text; background-clip: text; animation: wm-sheen 7s ease-in-out infinite; pointer-events: none; }
     @keyframes wm-sheen { 0% { background-position: 130% 0; } 55%, 100% { background-position: -130% 0; } }
   </style>
-  <script type="importmap">
-    {
-      "imports": {
-        "react/": "https://esm.sh/react@^19.2.3/",
-        "react": "https://esm.sh/react@^19.2.3",
-        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-        "react-dom/": "https://esm.sh/react-dom@^19.2.3/",
-        "pusher-js": "https://esm.sh/pusher-js@7.6.0",
-        "hls.js": "https://esm.sh/hls.js"
-      }
-    }
-  </script>
 </head>
 
 <body class="bg-black text-white overflow-x-hidden antialiased">
-  <div id="root"></div>
+  <div id="root">
+    <!-- instant splash: paints before JS loads, replaced by React on mount -->
+    <div id="boot-splash" style="position:fixed;inset:0;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;background:#060606;">
+      <style>
+        @keyframes boot-ring { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes boot-pulse { 0%,100% { opacity: 0.55; } 50% { opacity: 1; } }
+      </style>
+      <span style="position:relative;width:84px;height:84px;display:block;">
+        <span style="position:absolute;inset:-6px;border-radius:9999px;border:2px solid transparent;border-top-color:#E10600;animation:boot-ring 1.1s linear infinite;"></span>
+        <img src="/oflag-logo.webp" alt="OFLAG" style="width:84px;height:84px;border-radius:9999px;object-fit:cover;border:2px solid rgba(225,6,0,0.5);" />
+      </span>
+      <span style="font-family:Arial,sans-serif;font-size:15px;font-weight:900;letter-spacing:0.45em;text-indent:0.45em;color:rgba(255,255,255,0.85);animation:boot-pulse 1.6s ease-in-out infinite;">OFLAG</span>
+    </div>
+  </div>
   <script type="module" src="/index.tsx"></script>
 </body>
 
