@@ -3,14 +3,16 @@ import { KickIcon, XIcon, SnapchatIcon, TikTokIcon, WhatsAppIcon, YoutubeIcon } 
 import { SocialLink, Language } from './types';
 import { StreamPlayer } from './components/StreamPlayer';
 import { SiteHeader } from './components/SiteHeader';
-import { ChatWidget } from './components/Chat';
-import { XWidget, YoutubeWidget } from './components/CommunityWidgets';
-import { VodTheater, TheaterItem } from './components/VodTheater';
+import type { TheaterItem } from './components/VodTheater';
 
 // Heavy below-fold / on-demand chunks — split out of the first paint
 const HonorSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.HonorSection })));
 const ArchiveSection = lazy(() => import('./components/StatsSection').then(m => ({ default: m.ArchiveSection })));
 const ModeratorsSection = lazy(() => import('./components/ModeratorsSection'));
+const ChatWidget = lazy(() => import('./components/Chat').then(m => ({ default: m.ChatWidget })));
+const XWidget = lazy(() => import('./components/CommunityWidgets').then(m => ({ default: m.XWidget })));
+const YoutubeWidget = lazy(() => import('./components/CommunityWidgets').then(m => ({ default: m.YoutubeWidget })));
+const VodTheater = lazy(() => import('./components/VodTheater').then(m => ({ default: m.VodTheater })));
 
 // --- Constants (OFLAG) ---
 const DEFAULT_PROFILE_IMAGE = "/oflag-logo.webp";
@@ -138,22 +140,24 @@ const ArenaBackground: React.FC = () => {
         const canvas = canvasRef.current;
         if (!canvas) return;
         if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-        const ctx = canvas.getContext('2d');
+        const ctx = canvas.getContext('2d', { alpha: true });
         if (!ctx) return;
         let raf = 0; let w = 0; let h = 0;
-        const DPR = Math.min(window.devicePixelRatio || 1, 1.5);
-        // Crimson fortress: rising blood sparks + ember fire with flicker
+        const isMobile = window.matchMedia('(max-width: 768px)').matches;
+        const DPR = Math.min(window.devicePixelRatio || 1, isMobile ? 1 : 1.5);
+        // Crimson fortress: rising blood sparks + ember fire — lite edition:
+        // no shadowBlur (GPU killer), fewer particles, ~30fps throttle
         type P = { x: number; y: number; r: number; vy: number; vx: number; sway: number; phase: number; a: number; ember: boolean; blood: boolean };
         let parts: P[] = [];
         const resize = () => {
             w = window.innerWidth; h = window.innerHeight;
-            canvas.width = w * DPR; canvas.height = h * DPR;
+            canvas.width = Math.floor(w * DPR); canvas.height = Math.floor(h * DPR);
             canvas.style.width = `${w}px`; canvas.style.height = `${h}px`;
             ctx.setTransform(DPR, 0, 0, DPR, 0, 0);
-            const n = Math.min(72, Math.floor(w / 22));
+            const n = Math.min(isMobile ? 22 : 40, Math.floor(w / 38));
             parts = Array.from({ length: n }, () => ({
                 x: Math.random() * w, y: Math.random() * h,
-                r: 0.7 + Math.random() * 2.4,
+                r: 0.7 + Math.random() * 2.2,
                 vy: -(0.25 + Math.random() * 0.7), vx: (Math.random() - 0.5) * 0.2,
                 sway: 0.3 + Math.random() * 0.9, phase: Math.random() * Math.PI * 2,
                 a: 0.2 + Math.random() * 0.55, ember: Math.random() > 0.4, blood: Math.random() > 0.45,
@@ -161,35 +165,35 @@ const ArenaBackground: React.FC = () => {
         };
         resize();
         window.addEventListener('resize', resize);
-        let t = 0;
-        const tick = () => {
-            t += 0.016;
+        let t = 0; let last = 0;
+        const tick = (now: number) => {
+            raf = requestAnimationFrame(tick);
+            if (document.hidden) return;
+            if (now - last < 34) return; // ~30fps is plenty for ambient sparks
+            last = now;
+            t += 0.034;
             ctx.clearRect(0, 0, w, h);
             for (const p of parts) {
-                p.y += p.vy;
-                p.x += p.vx + Math.sin(t * p.sway + p.phase) * 0.25;
-                if (p.y < -10) { p.y = h + 10; p.x = Math.random() * w; }
-                if (p.x < -10) p.x = w + 10; if (p.x > w + 10) p.x = -10;
+                p.y += p.vy * 2;
+                p.x += p.vx * 2 + Math.sin(t * p.sway + p.phase) * 0.5;
+                if (p.y < -12) { p.y = h + 12; p.x = Math.random() * w; }
+                if (p.x < -12) p.x = w + 12; if (p.x > w + 12) p.x = -12;
                 const flick = p.ember ? (0.72 + 0.28 * Math.sin(t * 5 + p.phase)) : 1;
                 const alpha = Math.max(0, Math.min(1, p.a * flick));
+                const col = p.blood ? '225,6,0' : p.ember ? '255,107,0' : '235,225,205';
+                const dim = p.blood || p.ember ? 1 : 0.5;
+                // cheap two-pass glow: faint halo + solid core (zero shadowBlur)
+                ctx.globalAlpha = alpha * 0.22 * dim;
+                ctx.fillStyle = `rgb(${col})`;
+                ctx.beginPath();
+                ctx.arc(p.x, p.y, p.r * 3, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = alpha * dim;
                 ctx.beginPath();
                 ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
-                if (p.blood) {
-                    ctx.fillStyle = `rgba(225,6,0,${alpha})`;
-                    ctx.shadowBlur = 14;
-                    ctx.shadowColor = 'rgba(225,6,0,0.9)';
-                } else if (p.ember) {
-                    ctx.fillStyle = `rgba(255,107,0,${alpha})`;
-                    ctx.shadowBlur = 14;
-                    ctx.shadowColor = 'rgba(255,60,30,0.9)';
-                } else {
-                    ctx.fillStyle = `rgba(235,225,205,${alpha * 0.5})`;
-                    ctx.shadowBlur = 0;
-                }
                 ctx.fill();
-                ctx.shadowBlur = 0;
             }
-            raf = requestAnimationFrame(tick);
+            ctx.globalAlpha = 1;
         };
         raf = requestAnimationFrame(tick);
         return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize); };
@@ -1060,7 +1064,9 @@ export default function App() {
                                         </div>
                                         <div className="w-full xl:w-[360px] shrink-0 min-w-0 p-3 md:p-4 xl:ps-0">
                                             <div className="h-[480px] xl:h-[620px] xl:max-h-[78vh] rounded-2xl overflow-hidden border border-white/10 min-h-0">
-                                                <ChatWidget lang={lang} isDemo={false} />
+                                                <Suspense fallback={<div className="w-full h-full bg-white/[0.02] animate-pulse" />}>
+                                                    <ChatWidget lang={lang} isDemo={false} />
+                                                </Suspense>
                                             </div>
                                         </div>
                                     </div>
@@ -1073,8 +1079,8 @@ export default function App() {
                         <section id="community" className="pt-12 md:pt-16 scroll-mt-28">
                             <Reveal><SectionHeading no="03" title={t.communityTitle} en="COMMUNITY HQ" /></Reveal>
                             <div className="grid grid-cols-1 md:grid-cols-2 gap-3 md:gap-5">
-                                <Reveal delay={0}><XWidget lang={lang} /></Reveal>
-                                <Reveal delay={100}><YoutubeWidget lang={lang} /></Reveal>
+                                <Reveal delay={0}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><XWidget lang={lang} /></Suspense></Reveal>
+                                <Reveal delay={100}><Suspense fallback={<div className="w-full h-40 rounded-[26px] border border-white/10 bg-white/[0.02] animate-pulse" />}><YoutubeWidget lang={lang} /></Suspense></Reveal>
                             </div>
                         </section>
 
@@ -1120,7 +1126,11 @@ export default function App() {
                             </div>
                         </footer>
                     </div>
-                    <VodTheater lang={lang} item={theater} onClose={() => setTheater(null)} />
+                    {theater && (
+                        <Suspense fallback={null}>
+                            <VodTheater lang={lang} item={theater} onClose={() => setTheater(null)} />
+                        </Suspense>
+                    )}
                 </>
         </div>
     );

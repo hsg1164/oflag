@@ -1,5 +1,4 @@
 ﻿import React, { useEffect, useState, useRef } from 'react';
-import Hls from 'hls.js';
 import { Language, LeaderboardData, Clip, Video, ChannelInfo, LeaderboardEntry } from '../types';
 import { KickIcon } from './Icons';
 import BotrixLeaderboard from './BotrixLeaderboard';

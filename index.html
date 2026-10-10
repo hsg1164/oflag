@@ -272,8 +272,11 @@
       letter-spacing: 0.04em; user-select: none;
     }
 
-    .reveal { opacity: 0; transform: translateY(24px); filter: blur(4px); transition: opacity 1.1s cubic-bezier(0.16,1,0.3,1), transform 1.1s cubic-bezier(0.16,1,0.3,1), filter 1.1s cubic-bezier(0.16,1,0.3,1); will-change: opacity, transform, filter; }
-    .reveal.is-visible { opacity: 1; transform: translateY(0); filter: blur(0); }
+    .reveal { opacity: 0; transform: translateY(24px); transition: opacity 0.9s cubic-bezier(0.16,1,0.3,1), transform 0.9s cubic-bezier(0.16,1,0.3,1); will-change: opacity, transform; }
+    .reveal.is-visible { opacity: 1; transform: translateY(0); }
+    /* Below-fold sections skip rendering until near viewport — huge initial-load win */
+    section[id] { content-visibility: auto; contain-intrinsic-size: auto 560px; }
+    section[id="top"] { content-visibility: visible; }
     @media (prefers-reduced-motion: reduce) {
       .reveal { opacity: 1; transform: none; transition: none; }
       *, *::before, *::after { animation-duration: 0.01s !important; animation-iteration-count: 1 !important; transition-duration: 0.01s !important; }
